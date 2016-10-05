@@ -2,32 +2,31 @@
 #define BLOCKZORZ2_PARTICLE_HPP
 
 #include "object.hpp"
-#include <math.h>
 
 class particle : public object {
 	public:
-		particle(float alphadecay);
-		virtual void update(float deltatime) = 0;
+		particle(float alpha_decay);
+		virtual void update(float delta_time) = 0;
 		void reset(float x, float y);
-		void reset(object* attachedTo);
+		void reset(const object* attached_to);
 		
 		void set_angle(float angle);
 		void set_position(float x, float y);
-		void set_update_interval(float updateinterval);
+		void set_update_interval(float update_interval);
 
-		void draw(SDL_Surface* sharedImage);
+		void draw(SDL_Surface* shared_image);
 		
 	protected:
 		float lifetime; // Starting alpha value
-		float alphadecay;
-		float updateinterval; // How often the particle is updated
-		float timeleft; // time left to next update
+		float alpha_decay;
+		float update_interval; // How often the particle is updated
+		float time_left; // time left to next update
 };
 
 class exploding_particle : public particle {
 	public:
-		exploding_particle(float force, float alphadecay);
-		void update(float deltatime);
+		exploding_particle(float force, float alpha_decay);
+		void update(float delta_time);
 		
 	private:
 		float force;

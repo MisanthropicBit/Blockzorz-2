@@ -1,17 +1,18 @@
 #include "particle.hpp"
 #include "graphics.hpp"
+#include <cstdlib>
 
-particle::particle(float alphadecay) {
+particle::particle(float alpha_decay) {
     this->alpha_decay = alpha_decay;
     lifetime          = 0.f; // 0% transparency
     updateinterval    = 0.f;
-    speed.x           = 1.f;//(rand() % 10 + 1) / 10.f;
-    speed.y           = 1.f;//(rand() % 10 + 1) / 10.f;
+    speed.x           = 1.f; //(rand() % 10 + 1) / 10.f;
+    speed.y           = 1.f; //(rand() % 10 + 1) / 10.f;
     w                 = 0;
     h                 = 0;
 }
 
-void Particle::Reset(float x, float y)
+void particle::reset(float x, float y)
 {
     position.x = x;
     position.y = y;
@@ -40,7 +41,7 @@ void particle::reset(object* attached_to) {
         speed.set_angle(rand() % 360);
         speed *= (((rand() % (5 + 1)) + 5.f) / 10.f); // Scales the speed vector by a random factor between 0.5 and 1.0
     } else {
-        float object_angle = attachedTo->speed.angle();
+        float object_angle = attachedto->speed.angle();
         float low_angle    = objectangle - 135; // Image the attached object's speed is going in a 45 degree angle
         float high_angle   = objectangle + 135;
 
@@ -63,12 +64,12 @@ void particle::set_update_interval(float update_interval) {
     time_left = update_interval;
 }
 
-void particle::draw(SDL_Surface* shared_image) {
+void particle::draw(sdl_surface* shared_image) {
     graphics::set_transparency(shared_image, life_time);
     graphics::draw_image(shared_image, position.x, position.y);
 }
 
-explosion_particle::explosion_particle(float force, float alphadecay) : particle(alpha_decay) {
+explosion_particle::explosion_particle(float force, float alpha_decay) : particle(alpha_decay) {
     this->force  = force;
     speed       *= force;
 }
