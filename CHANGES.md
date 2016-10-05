@@ -1,25 +1,19 @@
-Version log
-===========
+# Version log
 
-1.0 beta
---------
+## 1.0 beta
 - Entered beta phase.
 
-1.1 beta
---------
+## 1.1 beta
 - When swapping, adjacent blocks are now checked for death.
 
-
-1.2 beta
----------
+## 1.2 beta
 - Fixed some music and sound issues
 - When disabling music or sound from gameplay, the settings now carry over to the menu when the game is finished or intentionally exited.
 - The music/sound buttons in gameplay now display the correct animation frame depending on the current settings.
 
-1.0
----
+## 1.0
 - Any key press now returns you to the main menu from the How to play menu and the Options menu
-- Highscore messages now display the proper postfix fater the number, e.g. "1st", "2nd" etc.
+- Highscore messages now display the proper postfix after the number, e.g. "1st", "2nd" etc.
 - Fixed a bug where blocks would not get cleared and not count as a combo.
 - Combos now award you 20 points instead of 7. Also fixed combo score counting that was a bit broken
 - Fixed a bug where 4 block combos would award the same amount of combo points as any other combo
