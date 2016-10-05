@@ -1,67 +1,59 @@
-#include "Block.h"
-#include "Graphics.h"
-#include "Grid.h"
-#include "Screen.h"
+#include "block.hpp"
+#include "graphics.hpp"
+#include "grid.hpp"
+#include "screen.hpp"
 #include <math.h>
 
-//=========================================================================================================================
-
-Block::Block()
-{
-	row = 0;
-	col = 0;
-	swapx = 0;
-	swapy = 0;
-	dropy = 0;
-	type = BLOCK_TYPE_NOGOOD;
+block::block() {
+	row        = 0;
+	col        = 0;
+	swapx      = 0;
+	swapy      = 0;
+	dropy      = 0;
+	type       = BLOCK_TYPE_NOGOOD;
 	isfalling  = false;
 	isswapping = false;
 	check      = false;
-	animation.SetCurrentFrame(0);
-	animation.SetMaxFrames(2);
-	animation.Stop();
+	animation.set_frame(0);
+	animation.set_max_frames(2);
+	animation.stop();
 }
 
-//=========================================================================================================================
-
-Block::Block(BlockType type, int row, int col) : AnimatedObject()
-{
-	swapx = 0;
-	swapy = 0;
-	dropy = 0;
+block::block(block_type type, int row, int col) : animated_object() {
+	swapx      = 0;
+	swapy      = 0;
+	dropy      = 0;
 	isfalling  = false;
 	isswapping = false;
 	check      = false;
-	animation.SetCurrentFrame(0);
-	animation.SetMaxFrames(2);
-	animation.Stop();
+	animation.set_frame(0);
+	animation.set_max_frames(2);
+	animation.stop();
 
-	if(type < BLOCK_TYPE_RED || type > BLOCK_TYPE_NOGOOD)
+	if(type < BLOCK_TYPE_RED || type > BLOCK_TYPE_NOGOOD) {
 		this->type = BLOCK_TYPE_NOGOOD;
-	else
-	{
+    } else {
 		this->type = type;
 
-		switch(type)
-		{
+		switch(type) {
 			case BLOCK_TYPE_RED:
-				Load("./Graphics/Animations/RedBlock.png", BLOCK_WIDTH, BLOCK_HEIGHT);
+				load("./image/animations/red_block.png", BLOCK_WIDTH, BLOCK_HEIGHT);
 				break;
 
 			case BLOCK_TYPE_BLUE:
-				Load("./Graphics/Animations/BlueBlock.png", BLOCK_WIDTH, BLOCK_HEIGHT);
+				load("./image/animations/blue_block.png", BLOCK_WIDTH, BLOCK_HEIGHT);
 				break;
 
 			case BLOCK_TYPE_GREEN:
-				Load("./Graphics/Animations/GreenBlock.png", BLOCK_WIDTH, BLOCK_HEIGHT);
+				load("./images/animations/green_block.png", BLOCK_WIDTH, BLOCK_HEIGHT);
 				break;
 
 			case BLOCK_TYPE_YELLOW:
-				Load("./Graphics/Animations/YellowBlock.png", BLOCK_WIDTH, BLOCK_HEIGHT);
+				load("./images/animations/yellow_block.png", BLOCK_WIDTH, BLOCK_HEIGHT);
 				break;
 
 			case BLOCK_TYPE_PURPLE:
-				Load("./Graphics/Animations/PurpleBlock.png", BLOCK_WIDTH, BLOCK_HEIGHT);
+				Load("./graphics/animations/purple_block.png", BLOCK_WIDTH, BLOCK_HEIGHT);
 				break;
 
 			default:
@@ -69,213 +61,142 @@ Block::Block(BlockType type, int row, int col) : AnimatedObject()
 		}
 	}
 
-	if(row >= 0 && row < GRID_MAX_ROWS && col >= 0 && col < GRID_MAX_COLUMNS)
-	{
-		this->row = row;
-		this->col = col;
+	if (row >= 0 && row < GRID_MAX_ROWS && col >= 0 && col < GRID_MAX_COLUMNS) {
+		this->row  = row;
+		this->col  = col;
 		position.x = 220 + col * w;
 		position.y = row * h + 50;
 	}
 }
 
-//=========================================================================================================================
-
-Block::~Block()
-{
+block::~block() {
 }
 
-//=========================================================================================================================
+void block::update(int dt) {
+	object::update(dt);
 
-void Block::Update(int dt)
-{
-	Object::Update(dt);
-
-	if(!Grid::GameGrid().IsSpawning())
-	{
-		if(isswapping)
-		{
-			if(speed.x < 0 && position.x <= swapx || speed.x > 0 && position.x >= swapx)
-			{
-				speed.Zero();
+	if (!grid::game_grid().is_spawning()) {
+		if (is_swapping) {
+			if (speed.x < 0 && position.x <= swapx || speed.x > 0 && position.x >= swapx) {
+				speed.zero();
 				position.x = swapx;
-				isswapping = false;
+				is_swapping = false;
 
-				if(!Grid::GameGrid().GetBlock(row + 1, col))
-					Fall();
-				else if(Grid::GameGrid().GetBlock(row + 1, col))
-				{
-					if(Grid::GameGrid().GetBlock(row + 1, col)->IsFalling())
-						Fall();
-					else
+				if (!grid::game_grid().get_block(row + 1, col)) {
+					fall();
+                } else if (grid::game_grid().get_block(row + 1, col)) {
+					if(grid::game_grid().get_block(row + 1, col)->is_falling()) {
+						fall();
+                    } else {
 						check = true;
+                    }
 				}
 			}
-		}
-		else if(isfalling)
-		{
-			if(position.y + h >= Grid::GameGrid().GetRowYCoord(GRID_MAX_ROWS)) // The block reached the bottom
-			{
-				position.y = Grid::GameGrid().GetRowYCoord(GRID_MAX_ROWS - 1);
+		} else if (is_falling) {
+			if (position.y + h >= grid::game_grid().get_row_ycoord(GRID_MAX_ROWS)) {
+                // The block reached the bottom
+				isfalling  = false;
+				check      = true;
+				position.y = grid::game_grid().get_rowy_coord(GRID_MAX_ROWS - 1);
 				speed.Zero();
-				isfalling = false;
-				check = true;
-			}
-			else if(Grid::GameGrid().GetBlock(row + 1, col)) // There is a block below it
-			{
-				Block* nextblock = Grid::GameGrid().GetBlock(row + 1, col);
+			} else if (grid::game_grid().get_block(row + 1, col)) {
+                // There is a block below it
+				block* next_block = grid::game_grid().get_block(row + 1, col);
 
-				if(!nextblock->IsFalling() && !nextblock->IsDead())
-				{
-					if(position.y + h >= nextblock->position.y)
-					{
-						position.y = nextblock->position.y - h;
+				if (!next_block->is_falling() && !next_block->is_dead()) {
+					if (position.y + h >= next_block->position.y) {
+						isfalling  = false;
+						position.y = next_block->position.y - h;
+						check      = true;
 						speed.Zero();
-						isfalling = false;
-						check = true;
 					}
 				}
-			}
-			else if(!Grid::GameGrid().GetBlock(row + 1, col)) // There is not a block below it
-			{
-				if(position.y + h > Grid::GameGrid().GetRowYCoord(row + 1))
-				{
-					Grid::GameGrid().SetBlock(this, row + 1, col);
-					Grid::GameGrid().SetBlockEmpty(row, col);
+			} else if (!grid::game_grid().get_block(row + 1, col)) {
+                // There is not a block below it
+				if (position.y + h > grid::game_grid().get_rowy_coord(row + 1)) {
+					grid::game_grid().set_block(this, row + 1, col);
+					grid::game_grid().set_block_empty(row, col);
 					++row;
 				}
 			}
 		}
-	}
-	else
-	{
-		if(position.y >= dropy)
-		{
+	} else {
+		if (position.y >= dropy) {
 			position.y = dropy;
 			speed.Zero();
 		}
 	}
 }
 
-//=========================================================================================================================
-
-void Block::Draw()
-{
-	AnimatedObject::Draw();
+void block::draw() {
+	animated_object::draw();
 }
 
-//=========================================================================================================================
-
-void Block::Fall()
-{
-	if(!dead)
-	{
-		speed = Vector(0, FALL_SPEED);
-		isfalling = true;
+void block::fall() {
+	if(!dead) {
+		speed     = vector(0, FALL_SPEED);
+		is_falling = true;
 	}
 }
 
-//=========================================================================================================================
-
-void Block::Kill()
-{
+void block::kill() {
 	dead = true;
 }
 
-//=========================================================================================================================
-
-void Block::SwapLeft()
-{
-	speed.x = -SWAP_SPEED;
-	swapx = position.x - w;
+void block::swap_left() {
+	speed.x    = -SWAP_SPEED;
+	swapx      = position.x - w;
+	isswapping = true;
 	--col;
-	isswapping = true;
 }
 
-//=========================================================================================================================
-
-void Block::SwapRight()
-{
-	speed.x = SWAP_SPEED;
-	swapx = position.x + w;
+void block::swap_right() {
+	speed.x    = SWAP_SPEED;
+	swapx      = position.x + w;
+	isswapping = true;
 	++col;
-	isswapping = true;
 }
 
-//=========================================================================================================================
-
-void Block::Check()
-{
+void block::check() {
 	check = true;
 }
 
-//=========================================================================================================================
-
-bool Block::NeedsChecking() const
-{
+bool block::needs_checking() const {
 	return check;
 }
 
-//=========================================================================================================================
-
-void Block::DontCheck()
-{
+void block::dont_check() {
 	check = false;
 }
 
-//=========================================================================================================================
-
-bool Block::IsDead() const
-{
+bool block::dead() const {
 	return dead;
 }
 
-//=========================================================================================================================
-
-bool Block::IsFalling() const
-{
+bool block::falling() const {
 	return isfalling;
 }
 
-//=========================================================================================================================
-
-bool Block::IsSwapping() const
-{
+bool block::swapping() const {
 	return isswapping;
 }
 
-//=========================================================================================================================
-
-BlockType Block::GetBlockType() const
-{
+block_type block::block_type() const {
 	return type;
 }
 
-//=========================================================================================================================
-
-int Block::GetDropY() const
-{
+int block::dropy() const {
 	return dropy;
 }
 
-//=========================================================================================================================
-
-void Block::SetDropY(int dropy)
-{
+void block::set_dropy(int dropy) {
 	this->dropy = dropy;
 }
 
-//=========================================================================================================================
-
-int Block::GetRow() const
-{
+int block::row() const {
 	return row;
 }
 
-//=========================================================================================================================
-
-int Block::GetCol() const
-{
+int block::column() const {
 	return col;
 }
-
-//=========================================================================================================================

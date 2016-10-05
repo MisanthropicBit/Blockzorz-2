@@ -1,248 +1,214 @@
-#include "GameStatePopUp.h"
-#include "GameStateManager.h"
-#include "AudioManager.h"
-#include "Graphics.h"
-#include "Color.h"
-#include "Font.h"
-#include "Screen.h"
-#include "ParticleEffect.h"
+#include "audio_manager.hpp"
+#include "color.hpp"
+#include "font.hpp"
+#include "game_state_manager.hpp"
+#include "game_state_pop_up.hpp"
+#include "graphics.hpp"
+#include "particle_effect.hpp"
+#include "screen.hpp"
 
-GameStatePopUp::GameStatePopUp()
-{
-	Fader = NULL;
-	PopUp = NULL;
-	Title = NULL;
-	Text  = NULL;
+game_state_popup::GameStatePopUp() {
+    fader = nullptr;
+    popup = nullptr;
+    title = nullptr;
+    text  = nullptr;
 }
 
-GameStatePopUp::GameStatePopUp(const string& caption, const string& text, const string& confirmtext, const string& quittext, GameState* returnstate)
-{
-	Fader = NULL;
-	PopUp = NULL;
-	Title = NULL;
-	Text  = NULL;
+game_state_popup::game_state_popup(const std::string& caption,
+                                   const std::string& text,
+                                   const std::string& confirmtext,
+                                   const std::string& quittext,
+                                   game_state* return_state) {
+    fader = nullptr;
+    popup = nullptr;
+    title = nullptr;
+    text  = nullptr;
 
-	Font titlefont("./Fonts/biocomv2.ttf", 30);
-	Font textfont("./Fonts/biocomv2.ttf", 20);
+    font title_font("./fonts/biocomv2.ttf", 30);
+    font text_font("./fonts/biocomv2.ttf",  20);
 
-	Title = titlefont.LoadHQTextImage(caption, Color::DarkBlue);
-	Text  = textfont.LoadHQTextImage(text, Color::Black);
+    title = title_font.load_hq_text_image(caption, color::dark_blue);
+    text  = text_font.load_hq_text_image(text, color::black);
 
-	Yes.Load(confirmtext, "./Fonts/biocomv2.ttf", Color::Black, 25, 200 - textfont.GetStringWidth(confirmtext)/2, 280);
-	No.Load(quittext, "./Fonts/biocomv2.ttf", Color::Black, 25, 400 - textfont.GetStringWidth(quittext)/2, 280);
-	Yes.SetAlpha(0.8f);
-	No.SetAlpha(0.8f);
+    yes.load(confirm_text, "./fonts/biocomv2.ttf", color::black, 25, 200 - text_font.string_width(confirm_text)/2, 280);
+    no.load(quit_text, "./fonts/biocomv2.ttf", color::black, 25, 400 - text_font.string_width(quit_text)/2, 280);
+    yes.set_alpha(0.8f);
+    no.set_alpha(0.8f);
 
-	this->returnstate = returnstate;
+    this->return_state = return_state;
 
-	titlex = Screen::GetScreen().GetWidth()/2 - titlefont.GetStringWidth(caption)/2;
-	textx  = Screen::GetScreen().GetWidth()/2 - textfont.GetStringWidth(text)/2;
+    titlex = screen::get().width()/2 - title_font.string_width(caption)/2;
+    textx  = screen::get().width()/2 - text_font.string_width(text)/2;
 
-	titlefont.Close();
-	textfont.Close();
+    title_font.close();
+    text_font.close();
 }
 
-GameStatePopUp::~GameStatePopUp()
-{
+game_state_popup::~game_state_popup() {
 }
 
-bool GameStatePopUp::Load()
-{
-	Fader = Graphics::LoadImage("./Graphics/Images/Fader.png");
-	PopUp = Graphics::LoadImage("./Graphics/Images/PopUp.png", Color::Magenta);
-	Graphics::SetTransparency(Fader, 0.5f);
+bool game_state_popup::load() {
+    fader = graphics::load_image("./images/fader.png");
+    popup = graphics::load_image("./images/popup.png", color::magenta);
+    graphics::set_transparency(fader, 0.5f);
 
-	if(Fader && PopUp && Title && Text)
-		return true;
-
-	return false;
+    return fader && popup && title && text;
 }
 
-void GameStatePopUp::OnEvent(SDL_Event& event)
-{
-	Event::OnEvent(event);
+void game_state_popup::on_event(SDL_Event& event) {
+    event::on_event(event);
 }
 
-void GameStatePopUp::Update(int dt)
-{
+void game_state_popup::update(int dt) {
 }
 
-void GameStatePopUp::Draw()
-{
-	Graphics::DrawImage(Fader, 0, 0);
-	Graphics::DrawImage(PopUp, 120, 140);
-	Graphics::DrawImage(Title, titlex, 150);
-	Graphics::DrawImage(Text, 140, 230);
+void game_state_popup::draw() {
+    graphics::draw_image(fader, 0, 0);
+    graphics::draw_image(popup, 120, 140);
+    graphics::draw_image(title, titlex, 150);
+    graphics::draw_image(text, 140, 230);
 
-	Yes.Draw();
-	No.Draw();
+    yes.draw();
+    no.draw();
 }
 
-void GameStatePopUp::UnLoad()
-{
-	returnstate = NULL;
+void game_state_popup::unload() {
+    returnstate = nullptr;
 
-	SDL_FreeSurface(Fader);
-	SDL_FreeSurface(PopUp);
-	SDL_FreeSurface(Title);
-	SDL_FreeSurface(Text);
+    SDL_FreeSurface(fader);
+    SDL_FreeSurface(popup);
+    SDL_FreeSurface(title);
+    SDL_FreeSurface(text);
 
-	Fader = NULL;
-	PopUp = NULL;
-	Title = NULL;
-	Text  = NULL;
+    fader = nullptr;
+    popup = nullptr;
+    title = nullptr;
+    text  = nullptr;
 }
 
-void GameStatePopUp::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
-	if(key == SDLK_y || key == SDLK_RETURN)
-	{
-		if(returnstate)
-		{
-			GameStateManager::GetManager().ChangeState(returnstate);
-		}
-		else
-		{
-			delete returnstate;
-			GameStateManager::GetManager().Quit();
-		}
-	}
-	else if(key == SDLK_n || key == SDLK_BACKSPACE || key == SDLK_ESCAPE)
-	{
-		delete returnstate;
-		GameStateManager::GetManager().PopState();
-	}
+void game_state_popup::key_down(SDLKey key, SDLMod modifier, Uint16 unicode) {
+    if (key == SDLK_y || key == SDLK_RETURN) {
+        if (return_state) {
+            game_state_manager::get().change_state(return_state);
+        } else {
+            delete return_state;
+            game_state_manager::get().quit();
+        }
+    } else if (key == SDLK_n || key == SDLK_BACKSPACE || key == SDLK_ESCAPE) {
+        delete return_state;
+        game_state_manager::get().pop_state();
+    }
 }
 
-void GameStatePopUp::OnMouseMove(int mx, int my, int relx, int rely, Uint8 state)
-{
-	Yes.OnMouseMove(mx, my);
-	No.OnMouseMove(mx, my);
+void game_state_popup::mouse_move(int mx, int my, int relx, int rely, Uint8 state) {
+    yes.mouse_move(mx, my);
+    no.mouse_move(mx, my);
 }
 
-void GameStatePopUp::OnLeftButtonDown(int mx, int my)
-{
-	if(Yes.HasMouseHover(mx, my))
-	{
-		if(returnstate)
-			GameStateManager::GetManager().ChangeState(returnstate);
-		else
-		{
-			delete returnstate;
-			GameStateManager::GetManager().Quit();
-		}
-	}
-	else if(No.HasMouseHover(mx, my))
-	{
-		delete returnstate;
-		GameStateManager::GetManager().PopState();
-	}
+void game_state_popup::left_button_down(int mx, int my) {
+    if (yes.has_mouse_hover(mx, my)) {
+        if (return_state) {
+            game_state_manager::get().change_state(return_state);
+        } else {
+            delete return_state;
+            game_state_manager::get().quit();
+        }
+    } else if (no.has_mouse_hover(mx, my)) {
+        delete return_state;
+        game_state_manager::get().pop_state();
+    }
 }
 
-GameStateModeUnlocked::GameStateModeUnlocked() : GameStatePopUp()
-{
-	particleinterval = 400;
+game_state_mode_unlocked::game_state_mode_unlocked() : game_state_popup() {
+    particle_interval = 400;
 }
 
-GameStateModeUnlocked::GameStateModeUnlocked(const string& caption, const string& text, GameState* returnstate) : GameStatePopUp()
-{
-	Font titlefont("./Fonts/biocomv2.ttf", 30);
-	Font textfont("./Fonts/biocomv2.ttf", 20);
+game_state_mode_unlocked::game_state_mode_unlocked(const std::string& caption,
+                                                   const std::string& text,
+                                                   game_state* return_state) : game_state_popup() {
+    font title_font("./fonts/biocomv2.ttf", 30);
+    font text_font("./fonts/biocomv2.ttf", 20);
 
-	Title = titlefont.LoadHQTextImage(caption, Color::DarkBlue);
-	Text  = textfont.LoadHQTextImage(text, Color::Black);
+    title = title_font.load_hq_text_image(caption, color::dark_blue);
+    text  = text_font.load_hq_text_image(text, color::black);
 
-	awesome.Load("Yeeees!", "./Fonts/biocomv2.ttf", Color::Gold, 25, 250, 280);
-	awesome.SetAlpha(0.5f);
+    awesome.load("Yeeees!", "./fonts/biocomv2.ttf", color::gold, 25, 250, 280);
+    awesome.set_alpha(0.5f);
 
-	this->returnstate = returnstate;
-	particleinterval = 400;
+    this->return_state = return_state;
+    particle_interval  = 400;
+    titlex             = screen::get().width()/2 - title_font.string_width(caption)/2;
+    textx              = screen::get().width()/2 - text_font.string_width(text)/2;
 
-	titlex = Screen::GetScreen().GetWidth()/2 - titlefont.GetStringWidth(caption)/2;
-	textx  = Screen::GetScreen().GetWidth()/2 - textfont.GetStringWidth(text)/2;
-
-	titlefont.Close();
-	textfont.Close();
+    title_font.close();
+    text_font.close();
 }
 
-GameStateModeUnlocked::~GameStateModeUnlocked()
-{
+game_state_mode_unlocked::~game_state_mode_unlocked() {
 }
 
-bool GameStateModeUnlocked::Load()
-{
-	AudioManager::GetManager()->PlaySound("Screech", 0);
-	AudioManager::GetManager()->PlaySound("Moves", 0);
+bool game_state_mode_unlocked::Load() {
+    audio_manager::get()->play_sound("screech", 0);
+    audio_manager::get()->play_sound("moves", 0);
 
-	return GameStatePopUp::Load();
+    return game_state_popup::load();
 }
 
-void GameStateModeUnlocked::OnEvent(SDL_Event& event)
-{
-	Event::OnEvent(event);
+void game_state_mode_unlocked::on_event(SDL_Event& event) {
+    event::on_event(event);
 }
 
-void GameStateModeUnlocked::Update(int dt)
-{
-	particleinterval -= dt;
-	peManager.Update(dt);
+void game_state_mode_unlocked::update(int dt) {
+    particle_interval -= dt;
+    pe_manager.update(dt);
 
-	if(particleinterval <= 0)
-	{
-		particleinterval = 400;
+    if (particle_interval <= 0) {
+        particle_interval = 400;
 
-		ParticleExplosionEffect* pex = new ParticleExplosionEffect("./Graphics/Images/Cursor.png", 8, 0.1f, 0.1f, rand() % 641, rand() % 481);
-		pex->SetUpdateInterval(40, 80);
-		pex->Show();
-		peManager.AddEffect(pex);
-	}
+        particle_explosion_effect* pex = new particle_explosion_effect("./images/cursor.png", 8, 0.1f, 0.1f, rand() % 641, rand() % 481);
+        pex->set_update_interval(40, 80);
+        pex->show();
+        pe_manager.add_effect(pex);
+    }
 }
 
-void GameStateModeUnlocked::Draw()
-{
-	Graphics::DrawImage(Fader, 0, 0);
-	Graphics::DrawImage(PopUp, 120, 140);
-	Graphics::DrawImage(Title, titlex, 150);
-	Graphics::DrawImage(Text, 140, 230);
+void game_state_mode_unlocked::draw() {
+    graphics::draw_image(fader, 0, 0);
+    graphics::draw_image(popup, 120, 140);
+    graphics::draw_image(title, titlex, 150);
+    graphics::draw_image(text, 140, 230);
 
-	awesome.Draw();
-	peManager.Draw();
+    awesome.draw();
+    pe_manager.draw();
 }
 
-void GameStateModeUnlocked::UnLoad()
-{
-	GameStatePopUp::UnLoad();
+void game_state_mode_unlocked::unload() {
+    game_state_popup::unload();
 }
 
-void GameStateModeUnlocked::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
-	if(key == SDLK_RETURN)
-		GameStateManager::GetManager().PopState();
+void game_state_mode_unlocked::key_down(SDLKey key, SDLMod modifier, Uint16 unicode) {
+    if (key == SDLK_RETURN) {
+        game_state_manager::get().pop_state();
+    }
 }
 
-void GameStateModeUnlocked::OnMouseMove(int mx, int my, int relx, int rely, Uint8 state)
-{
-	if(awesome.HasMouseHover(mx, my))
-	{
-		if(!awesome.IsSelected())
-		{
-			awesome.Select();
-			awesome.SetAlpha(0.f);
-			AudioManager::GetManager()->PlaySound("Click", 0);
-		}
-	}
-	else
-	{
-		if(awesome.IsSelected())
-		{
-			awesome.Deselect();
-			awesome.SetAlpha(0.8f);
-		}
-	}
+void game_state_mode_unlocked::mouse_move(int mx, int my, int relx, int rely, Uint8 state) {
+    if (awesome.has_mouse_hover(mx, my)) {
+        if (!awesome.selected()) {
+            awesome.select();
+            awesome.set_alpha(0.f);
+            audio_manager::get()->play_sound("click", 0);
+        }
+    } else {
+        if (awesome.selected()) {
+            awesome.deselect();
+            awesome.set_alpha(0.8f);
+        }
+    }
 }
 
-void GameStateModeUnlocked::OnLeftButtonDown(int mx, int my)
-{
-	if(awesome.HasMouseHover(mx, my))
-		GameStateManager::GetManager().PopState();
+void game_state_mode_unlocked::left_button_down(int mx, int my) {
+    if (awesome.has_mouse_hover(mx, my)) {
+        game_state_manager::get().pop_state();
+    }
 }

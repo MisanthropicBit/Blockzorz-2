@@ -1,290 +1,264 @@
-#include "GameStateGame.h"
-#include "GameStateMenu.h"
-#include "GameStatePopUp.h"
-#include "GameStateHighscore.h"
-#include "Game.h"
-#include "GameStateManager.h"
-#include "Graphics.h"
-#include "AudioManager.h"
-#include "Screen.h"
-#include "Grid.h"
-#include "ParticleEffect.h"
+#include "game_state_game.hpp"
+#include "game_state_menu.hpp"
+#include "game_state_pop_up.hpp"
+#include "game_state_highscore.hpp"
+#include "game.hpp"
+#include "game_state_manager.hpp"
+#include "graphics.hpp"
+#include "audio_manager.hpp"
+#include "screen.hpp"
+#include "grid.hpp"
+#include "particle_effect.hpp"
 #include <math.h>
 #include <time.h>
 #include <iostream>
 
-GameStateGame::GameStateGame()
-{
-	EyeCandy        = NULL;
-	Gamefield       = NULL;
-	Arrow           = NULL;
-	Score			= NULL;
-	Time			= NULL;
-	Combos			= NULL;
-	gamestarted     = false;
-	enterhighscore  = false;
+game_state_game::game_state_game() {
+	eye_candy       = nullptr;
+	game_field      = nullptr;
+	arrow           = nullptr;
+	score           = nullptr;
+	time            = nullptr;
+	combos          = nullptr;
+	game_started    = false;
+	enter_highscore = false;
 }
 
-GameStateGame::~GameStateGame()
-{
+game_state_game::~game_state_game() {
 }
 
-bool GameStateGame::Load()
-{
-	font.SetFontFile("./Fonts/biocomv2.ttf", 25);
-	EyeCandy   = Graphics::LoadImage("./Graphics/Images/EyeCandy.png");
-	Gamefield  = Graphics::LoadImage("./Graphics/Images/GameField.png");
-	Arrow = Graphics::LoadImage("./Graphics/Images/Arrow.png", Color::White);
-	Score  = font.LoadHQTextImage("Score", Color::DarkBlue);
-	Time   = font.LoadHQTextImage("Time", Color::DarkBlue);
-	Combos = font.LoadHQTextImage("Combos", Color::DarkBlue);
+bool game_state_game::load() {
+	font.set_font_file("./fonts/biocomv2.ttf", 25);
+	eye_candy  = graphics::load_image("./graphics/images/eye_candy.png");
+	game_field = graphics::load_image("./graphics/images/game_field.png");
+	arrow      = graphics::load_image("./graphics/images/arrow.png", color::white);
+	score      = font.load_hq_text_image("score", color::dark_blue);
+	time       = font.load_hq_text_image("time", color::dark_blue);
+	combos     = font.load_hq_text_image("combos", color::dark_blue);
 
-	quit.Load("Quit", "./Fonts/biocomv2.ttf", Color::Black, 40, 280, 430);
-	quit.SetAlpha(0.8f);
-	quit.Deselect();
-	musicbutton.Load("./Graphics/Animations/MusicIcon.png", 10, 400);
-	soundbutton.Load("./Graphics/Animations/SoundIcon.png", 70, 400);
+	quit.load("quit", "./fonts/biocomv2.ttf", color::black, 40, 280, 430);
+	quit.set_alpha(0.8f);
+	quit.deselect();
+	music_button.load("./graphics/animations/music_icon.png", 10, 400);
+	sound_button.load("./graphics/animations/sound_icon.png", 70, 400);
 
-	if(AudioManager::GetManager()->IsMusicPaused())
-		musicbutton.SetFrame(1);
+	if (audio_manager::get()->music_paused()) {
+        music_button.set_frame(1);
+    }
 
-	if(!AudioManager::GetManager()->IsSoundEnabled())
-		soundbutton.SetFrame(1);
+	if (!audio_manager::get()->sound_enabled()) {
+        sound_button.set_frame(1);
+    }
 
-	Graphics::SetTransparency(EyeCandy, 0.5f);
+	graphics::set_transparency(eye_candy, 0.5f);
 
-	srand(time(NULL));
+	srand(time(nullptr));
 
-	Grid::GameGrid().SetWidth(8);
-	Grid::GameGrid().SetHeight(14);
-	Grid::GameGrid().Spawn();
-	player.Load("./Graphics/Images/Player.bmp", 7, 3);
-	player.SetTransparency(0.5f);
+	grid::game_grid().set_width(8);
+	grid::game_grid().set_height(14);
+	grid::game_grid().spawn();
+	player.load("./graphics/images/player.bmp", 7, 3);
+	player.set_transparency(0.5f);
 
-	if(EyeCandy && Gamefield && Arrow && Score && Time && Combos)
-		return true;
-
-	return false;
+	return eye_candy && game_field && arrow && score && time && combos;
 }
 
-void GameStateGame::OnEvent(SDL_Event& event)
-{
-	Event::OnEvent(event);
+void game_state_game::on_event(SDL_Event& event) {
+	event::on_event(event);
 }
 
-void GameStateGame::Update(int dt)
-{
-	if(!Grid::GameGrid().IsGameOver())
-	{
-		Grid::GameGrid().Update(dt);
+void game_state_game::update(int dt) {
+	if (!grid::game_grid().is_game_over()) {
+		grid::game_grid().update(dt);
 
-		if(!Grid::GameGrid().IsSpawning() && !gamestarted)
-		{
-			player.SetTransparency(0.f);
-			clock.Start();
-			gamestarted = true;
+		if (!grid::game_grid().spawning() && !game_started) {
+			player.set_transparency(0.f);
+			clock.start();
+			game_started = true;
 		}
-	}
-	else
-	{
-		GameStateHighscore gshs;
-		gshs.LoadHighscores("./Data/Highscores.hs");
+	} else {
+		game_state_highscore gshs;
+		gshs.load_highscores("./data/highscores.hs");
 
 		Highscore highscore;
-		highscore.name = "";
-		highscore.score = Font::Int2String(Grid::GameGrid().GetScore());
-		highscore.combos = Font::Int2String(Grid::GameGrid().GetNoCombos());
+		highscore.name   = "";
+		highscore.score  = font::int2string(grid::game_grid().score());
+		highscore.combos = font::int2string(grid::game_grid().combos());
 
-		int cpos = clock.GetPrettyPrintTime().find(":");
-		highscore.mins = clock.GetPrettyPrintTime().substr(0, cpos);
-		highscore.secs = clock.GetPrettyPrintTime().substr(cpos + 1);
+		int cpos       = clock.get_pretty_print_time().find(":");
+		highscore.mins = clock.get_pretty_print_time().substr(0, cpos);
+		highscore.secs = clock.get_pretty_print_time().substr(cpos + 1);
 
-		printf("Lowest score: %d\n", gshs.GetLowestHighscore());
+		printf("Lowest score: %d\n", gshs.get_lowest_highscore());
 
-		if(gshs.GetLowestHighscore() >= Grid::GameGrid().GetScore())
-		{
-			GameStateManager::GetManager().ChangeState(new GameStateMenu());
-		}
-		else
-		{
-			printf("Position: %d\n", gshs.GetScorePosition(Font::String2Int(highscore.score)));
-			GameStateManager::GetManager().PushState(new GameStateEnterHighscore("Enter Name", gshs.GetScorePosition(Font::String2Int(highscore.score)), highscore));
+		if (gshs.get_lowest_highscore() >= grid::game_grid().get_score()) {
+			game_state_manager::get().change_state(new game_state_menu());
+		} else {
+			printf("Position: %d\n", gshs.get_score_position(font::string2int(highscore.score)));
+			game_state_manager::get().push_state(new game_state_enter_highscore("Enter Name", gshs.get_score_position(font::string2int(highscore.score)), highscore));
 		}
 	}
 }
 
-void GameStateGame::Draw()
-{
-	Screen::GetScreen().ClearScreenColor(Color::White);
+void game_state_game::draw() {
+	screen::get().clear_screen_color(Color::White);
 
-	Graphics::DrawImage(EyeCandy, 450, 111);
-	Graphics::DrawImage(Gamefield, 220, 50);
-	Graphics::DrawImage(Score, 110, 55);
-	font.DrawHQText(Font::Int2String(Grid::GameGrid().GetScore()), Color::DarkBlue, 120, 80);
-	Graphics::DrawImage(Time, 110, 55 + 3 * 20);
-	font.DrawHQText(clock.GetPrettyPrintTime(), Color::DarkBlue, 120, 60 + 4 * 20);
-	Graphics::DrawImage(Combos, 110, 55 + 6 * 20);
-	font.DrawHQText(Font::Int2String(Grid::GameGrid().GetNoCombos()), Color::DarkBlue, 120, 60 + 7 * 20);
-	Graphics::DrawImage(Arrow, 430, 50 + Grid::GameGrid().GetHighestBlock() * 25 - Arrow->w/2);
+	graphics::draw_image(eye_candy, 450, 111);
+	graphics::draw_image(game_field, 220, 50);
+	graphics::draw_image(score, 110, 55);
+	font.draw_hq_text(font::int2string(grid::game_grid().score()), color::dark_blue, 120, 80);
+	graphics::draw_image(time, 110, 55 + 3 * 20);
+	font.draw_hq_text(clock.get_pretty_print_time(), color::dark_blue, 120, 60 + 4 * 20);
+	graphics::draw_image(combos, 110, 55 + 6 * 20);
+	font.draw_hq_text(font::int2string(grid::game_grid().combos()), Color::DarkBlue, 120, 60 + 7 * 20);
+	graphics::draw_image(arrow, 430, 50 + grid::game_grid().highest_block() * 25 - arrow->w/2);
 
-	quit.Draw();
-	musicbutton.Draw();
-	soundbutton.Draw();
+	quit.draw();
+	music_button.draw();
+	sound_button.draw();
 
-	Grid::GameGrid().Draw();
-	player.Draw();
+	grid::game_grid().draw();
+	player.draw();
 }
 
-void GameStateGame::UnLoad()
-{
-	Grid::GameGrid().DeSpawn();
+void game_state_game::unload() {
+	grid::game_grid().despawn();
 
-	SDL_FreeSurface(EyeCandy);
-	SDL_FreeSurface(Gamefield);
-	SDL_FreeSurface(Arrow);
-	SDL_FreeSurface(Score);
-	SDL_FreeSurface(Time);
-	SDL_FreeSurface(Combos);
+	SDL_FreeSurface(eye_candy);
+	SDL_FreeSurface(game_field);
+	SDL_FreeSurface(arrow);
+	SDL_FreeSurface(score);
+	SDL_FreeSurface(time);
+	SDL_FreeSurface(combos);
 
-	EyeCandy  = NULL;
-	Gamefield = NULL;
-	Arrow     = NULL;
-	Score	  = NULL;
-	Time	  = NULL;
-	Combos	  = NULL;
+	EyeCandy  = nullptr;
+	Gamefield = nullptr;
+	Arrow     = nullptr;
+	Score	  = nullptr;
+	Time	  = nullptr;
+	Combos	  = nullptr;
 }
 
-void GameStateGame::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
-	if(!Grid::GameGrid().IsSpawning())
-	{
-		switch(key)
-		{
+void game_state_game::key_down(SDLKey key, SDLMod modifier, Uint16 unicode) {
+	if (!grid::game_grid().spawning()) {
+		switch (key) {
 			case SDLK_UP:
-				if(player.GetRow() != 0)
-					player.GetRow() -= 1;
+				if (player.row() != 0) {
+                    player.row() -= 1;
+                }
 				break;
 
 			case SDLK_DOWN:
-				if(player.GetRow() != GRID_MAX_ROWS - 1)
-					player.GetRow() += 1;
+				if (player.row() != GRID_MAX_ROWS - 1) {
+                    player.row() += 1;
+                }
 				break;
 
 			case SDLK_LEFT:
-				if(player.GetColumn() != 0)
-					player.GetColumn() -= 1;
+				if (player.coloumn() != 0) {
+                    player.coloumn() -= 1;
+                }
 				break;
 
 			case SDLK_RIGHT:
-				if(player.GetColumn() != GRID_MAX_COLUMNS - 2)
-				player.GetColumn() += 1;
+				if (player.column() != GRID_MAX_COLUMNS - 2) {
+                    player.column() += 1;
+                }
 				break;
 
 			case SDLK_SPACE:
-				Grid::GameGrid().SwapBlocks(player.GetRow(), player.GetColumn());
+				grid::game_grid().swap_blocks(player.row(), player.column());
 				break;
 
 			case SDLK_s:
-				if(AudioManager::GetManager()->IsSoundEnabled())
-				{
-					soundbutton.SetFrame(1);
-					AudioManager::GetManager()->AllChannelsFadeOut(1000);
-					AudioManager::GetManager()->DisableSounds();
-				}
-				else
-				{
-					soundbutton.SetFrame(0);
-					if(Game::gamesettings.svolume != 0)
-						AudioManager::GetManager()->EnableSounds();
+				if (audio_manager::get()->sound_enabled()) {
+					sound_button.set_frame(1);
+					audio_manager::get()->all_channels_fadeout(1000);
+					audio_manager::get()->disable_sounds();
+				} else {
+					sound_button.set_frame(0);
+					if (game::game_settings.sound_volume != 0) {
+                        audio_manager::get()->enable_sounds();
+                    }
 				}
 				break;
 
 			case SDLK_m:
-				if(!AudioManager::GetManager()->IsMusicPaused())
-				{
-					musicbutton.SetFrame(1);
-					AudioManager::GetManager()->PauseMusic();
-				}
-				else if(!AudioManager::GetManager()->IsMusicPlaying())
-				{
-					musicbutton.SetFrame(0);
-					if(Game::gamesettings.mvolume != 0)
-						AudioManager::GetManager()->FadeIn("TetrisAttack", -1, 1000);
+				if (!audio_manager::get()->music_paused()) {
+					music_button.set_frame(1);
+					audio_manager::get()->pause_music();
+				} else if (!audio_manager::get()->music_playing()) {
+					music_button.set_frame(0);
+
+					if(game::game_settings.music_volume != 0) {
+                        audio_manager::get()->fadein("tetris_attack", -1, 1000);
+                    }
 				}
 				break;
 
 			case SDLK_q:
-				GameStateManager::GetManager().PushState(new GameStatePopUp("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new GameStateMenu()));
+				game_state_manager::get().push_state(new game_state_popup("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new game_state_menu()));
 				break;
 
 			case SDLK_BACKSPACE:
-				GameStateManager::GetManager().PushState(new GameStatePopUp("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new GameStateMenu()));
+				game_state_manager::get().push_state(new game_state_popup("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new game_state_menu()));
 				break;
 
 			case SDLK_d:
-				Grid::GameGrid().PrintGrid();
+				grid::game_grid().print_grid();
 				break;
 		}
 	}
 }
 
-void GameStateGame::OnMouseMove(int mx, int my, int relx, int rely, Uint8 state)
-{
-	if(!Grid::GameGrid().IsSpawning())
-	{
+void game_state_game::mouse_move(int mx, int my, int relx, int rely, Uint8 state) {
+	if (!grid::game_grid().spawning()) {
 		int gridcol = (mx - 220) / 25;
 		int gridrow = (my - 50) / 25;
 
-		if(gridcol >= 0 && gridcol < GRID_MAX_COLUMNS - 1)
-			player.GetColumn() = gridcol;
-		if(gridrow >= 0 && gridrow < GRID_MAX_ROWS)
-			player.GetRow() = gridrow;
+		if (gridcol >= 0 && gridcol < GRID_MAX_COLUMNS - 1) {
+            player.column() = gridcol;
+        }
+
+		if (gridrow >= 0 && gridrow < GRID_MAX_ROWS) {
+            player.row() = gridrow;
+        }
 	}
 
-	quit.OnMouseMove(mx, my);
+	quit.mouse_move(mx, my);
 }
 
-void GameStateGame::OnLeftButtonDown(int mx, int my)
-{
-	if(mx >= 220 && mx < 420 && my >= 50 && my < 400)
-	{
-		if((mx - 220) / 25 != 7)
-			Grid::GameGrid().SwapBlocks((my - 50) / 25, (mx - 220) / 25);
-		else if((mx - 220) / 25 == 7)
-			Grid::GameGrid().SwapBlocks((my - 50) / 25, 6);
-	}
-	else if(mx >= 10 && mx <= 62 && my >= 400 && my <= 452)
-	{
-		if(AudioManager::GetManager()->IsMusicPlaying())
-		{
-			musicbutton.SetFrame(1);
-			AudioManager::GetManager()->PauseMusic();
-		}
-		else if(AudioManager::GetManager()->IsMusicPaused() || !AudioManager::GetManager()->IsMusicPlaying())
-		{
-			musicbutton.SetFrame(0);
+void game_state_game::left_button_down(int mx, int my) {
+	if (mx >= 220 && mx < 420 && my >= 50 && my < 400) {
+		if ((mx - 220) / 25 != 7) {
+            grid::game_grid().swap_blocks((my - 50) / 25, (mx - 220) / 25);
+        } else if ((mx - 220) / 25 == 7) {
+			grid::game_grid().swap_blocks((my - 50) / 25, 6);
+        }
+	} else if(mx >= 10 && mx <= 62 && my >= 400 && my <= 452) {
+		if (audio_manager::get()->music_playing()) {
+			music_button.set_frame(1);
+			audio_manager::get()->pause_music();
+		} else if (audio_manager::get()->music_paused() || !audio_manager::get()->music_playing()) {
+			music_button.set_frame(0);
 
-			if(Game::gamesettings.mvolume != 0)
-				AudioManager::GetManager()->FadeIn("TetrisAttack", -1, 1000);
+			if (game::game_settings.music_volume != 0) {
+                audio_manager::get()->fadein("tetris_attack", -1, 1000);
+            }
 		}
-	}
-	else if(mx >= 70 && mx <= 122 && my >= 400 && my <= 452)
-	{
-		if(AudioManager::GetManager()->IsSoundEnabled())
-		{
-			soundbutton.SetFrame(1);
-			AudioManager::GetManager()->AllChannelsFadeOut(500);
-			AudioManager::GetManager()->DisableSounds();
+	} else if (mx >= 70 && mx <= 122 && my >= 400 && my <= 452) {
+		if (audio_manager::get()->sound_enabled()) {
+			sound_button.set_frame(1);
+			audio_manager::get()->all_channels_fade_out(500);
+			audio_manager::get()->disable_sounds();
+		} else {
+			sound_button.set_frame(0);
+
+			if (game::game_settings.sound_volume != 0) {
+                audio_manager::get()->enable_sounds();
+            }
 		}
-		else
-		{
-			soundbutton.SetFrame(0);
-			if(Game::gamesettings.svolume != 0)
-				AudioManager::GetManager()->EnableSounds();
-		}
-	}
-	else if(quit.HasMouseHover(mx, my))
-	{
-		GameStateManager::GetManager().PushState(new GameStatePopUp("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new GameStateMenu()));
+	} else if (quit.has_mouse_hover(mx, my)) {
+		game_state_manager::get().push_state(new game_state_popup("Return to Main Menu?", "Are you sure you want to quit?", "Yes", "No, go back", new game_state_menu()));
 	}
 }

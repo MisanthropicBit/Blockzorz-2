@@ -1,44 +1,41 @@
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef BLOCKZORZ2_SCREEN_HPP
+#define BLOCKZORZ2_SCREEN_HPP
 
-#include "SDL.h"
+#include <SDL.h>
 #include <string>
-using namespace std;
 
-class Color;
+class color;
 
-// Singleton
-class Screen
-{
+class screen {
 	public:
-		static bool CreateScreen(int width = 640, int height = 480, int bpp = 0, Uint32 flags = SDL_ANYFORMAT);
-		static void DestroyScreen();
-		static Screen GetScreen();
-		~Screen();
+		static bool create_screen(int width = 640, int height = 480, int bpp = 0, Uint32 flags = SDL_ANYFORMAT);
+		static void destroy_screen();
+		static screen get();
+		~screen();
 
-		bool SetVideoResolution(int width, int height, int bpp, Uint32 flags);
-		int GetHeight();
-		int GetWidth();
-		int GetBitsPerPixel();
-		int GetBytesPerPixel();
-		Uint32 GetFlags();
+		bool set_video_resolution(int width, int height, int bpp, Uint32 flags);
+		int width();
+		int height();
+		int bits_per_pixel();
+		int bytes_per_pixel();
+		Uint32 flags();
 
-		void SetCaption(const string& text);
-		void SetIcon(const string& iconfile);
-		string GetCaption();
-		SDL_Surface* GetScreenSurface();
+		void set_caption(const std::string& text);
+		void set_icon(const std::string& icon_file);
+		string get_caption();
+		SDL_Surface* get_screen_surface();
 
-		void UpdateScreen(); // SDL_Flip
-		void ClearScreen(); // Clears the screen with black
-		void ClearScreenColor(Color& color); // Clears the screen with a color
+		void update_screen(); // SDL_Flip
+		void clear_screen(); // Clears the screen with black
+		void clear_screen_color(const color& color); // Clears the screen with a color
 
 	private:
-		Screen(); // hidden constructor
+		screen(); // hidden constructor
 
-		static Screen screen;
+		static screen screen;
 		
-		SDL_Surface* screensurface;
-		string caption;
+		SDL_Surface* screen_surface;
+        std::string caption;
 };
 
 #endif

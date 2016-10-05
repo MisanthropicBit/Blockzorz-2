@@ -1,57 +1,45 @@
-#include "Player.h"
-#include "Graphics.h"
-#include "Color.h"
-#include "Screen.h"
-#include "Block.h"
+#include "player.hpp"
+#include "graphics.hpp"
+#include "color.hpp"
+#include "screen.hpp"
+#include "block.hpp"
 
-//=========================================================================================================================
-
-Player::Player()
-{
-	image = NULL;
+player::player() {
+	image     = nullptr;
 	this->row = row;
 	this->col = col;
-	movex = 0;
-	movey = 0;
-	keydelay = 100;
+	movex     = 0;
+	movey     = 0;
+	key_delay = 100;
 }
 
-//=========================================================================================================================
-
-Player::Player(const string& file, int row, int col)
-{
-	Load(file, row, col);
+player::player(const std::string& file, int row, int col) {
+	load(file, row, col);
 }
 
-//=========================================================================================================================
+void player::load(const std::string& file, int row, int col) {
+	image = nullptr;
 
-void Player::Load(const string& file, int row, int col)
-{
-	image = NULL;
-	if(!file.empty())
-		image = Graphics::LoadImage(file, Color::Magenta);
+	if (!file.empty()) {
+        image = graphics::load_image(file, color::magenta);
+    }
 
 	this->row = row;
 	this->col = col;
-	movex = 0;
-	movey = 0;
-	keydelay = 100;
+	movex     = 0;
+	movey     = 0;
+	key_delay = 100;
 }
 
-//=========================================================================================================================
+player::~player() {
+	if (image) {
+        SDL_FreeSurface(image);
+    }
 
-Player::~Player()
-{
-	if(image)
-		SDL_FreeSurface(image);
-
-	image = NULL;
+	image = nullptr;
 }
 
-//=========================================================================================================================
-
-void Player::Update(int dt)
-{
+void player::update(int dt) {
 /*	keydelay -= dt;
 
 	if(keydelay <= 0)
@@ -66,68 +54,39 @@ void Player::Update(int dt)
 	}*/
 }
 
-//=========================================================================================================================
-
-void Player::Draw()
-{
-	Graphics::DrawImage(image, Screen::GetScreen().GetWidth()/2 - 100 + col * BLOCK_WIDTH, row * BLOCK_HEIGHT + 50);
+void player::draw() {
+	graphics::draw_image(image, screen::get().width()/2 - 100 + col * BLOCK_WIDTH, row * BLOCK_HEIGHT + 50);
 }
 
-//=========================================================================================================================
-
-void Player::SetTransparency(float alpha)
-{
-	Graphics::SetTransparency(image, alpha);
+void player::set_transparency(float alpha) {
+	graphics::set_transparency(image, alpha);
 }
 
-//=========================================================================================================================
-
-int& Player::GetRow()
-{
+int player::row() {
 	return row;
 }
 
-//=========================================================================================================================
-
-int& Player::GetColumn()
-{
+int player::column() {
 	return col;
 }
 
-//=========================================================================================================================
-
-void Player::StartMovingUp()
-{
+void player::start_moving_up() {
 	movey = -1;
 }
 
-//=========================================================================================================================
-
-void Player::StartMovingDown()
-{
+void player::start_moving_down() {
 	movey = 1;
 }
 
-//=========================================================================================================================
-
-void Player::StartMovingLeft()
-{
+void player::start_moving_left() {
 	movex = -1;
 }
 
-//=========================================================================================================================
-
-void Player::StartMovingRight()
-{
+void player::start_moving_right() {
 	movex = 1;
 }
 
-//=========================================================================================================================
-
-void Player::StopMoving()
-{
+void player::stop_moving() {
 	movex = 0;
 	movey = 0;
 }
-
-//=========================================================================================================================

@@ -1,30 +1,27 @@
-#ifndef PARTICLE_EFFECT_MANAGER_H
-#define PARTICLE_EFFECT_MANAGER_H
+#ifndef BLOCKZORZ2_PARTICLE_EFFECT_MANAGER_HPP
+#define BLOCKZORZ2_PARTICLE_EFFECT_MANAGER_HPP
 
 #include <vector>
-using namespace std;
 
-// Forward declaration
-class ParticleEffect;
+class particle_effect;
 
-class ParticleEffectManager
-{
+class particle_effect_manager {
 	public:
-		ParticleEffectManager();
-		~ParticleEffectManager();
+		particle_effect_manager();
+		~particle_effect_manager();
 		
-		void AddEffect(ParticleEffect* effect);
-		bool RemoveEffect(int id); // by passing an index we avoid do a linear search using a pointer
-		void Update(float deltatime);
-		void Draw();
-		void Clear();
+		void add_effect(particle_effect* effect);
+		bool remove_effect(int id); // by passing an index we avoid do a linear search using a pointer
+		void update(float deltatime);
+		void draw();
+		void clear();
 
-		int GetNoParticleEffects() const;
-		int GetNoParticles() const;
+		int size() const;
+		int total_particles() const;
 		
 	private:
 		int particles;
-		vector<ParticleEffect*> Effects;
+        std::vector<particle_effect*> effects;
 };
 
 #endif

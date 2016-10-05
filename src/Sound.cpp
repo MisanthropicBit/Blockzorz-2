@@ -1,46 +1,34 @@
-#include "Sound.h"
+#include "sound.hpp"
 
-//=========================================================================================================================
+sound::sound(const std::string& file) {
+    _sound = nullptr;
 
-Sound::Sound(const string& file)
-{
-	sound = NULL;
-	if(!file.empty()) {sound = Mix_LoadWAV(file.c_str());}
-	
-	if(!sound)
-	{
-		Mix_FreeChunk(sound);
-		sound = NULL;
-	}
+    if (!file.empty()) {
+        _sound = Mix_LoadWAV(file.c_str());
+    }
+    
+    if (!_sound) {
+        Mix_FreeChunk(_sound);
+        _sound = nullptr;
+    }
 }
 
-//============================================================================================================================
+sound::~sound() {
+    if (_sound) {
+        Mix_FreeChunk(_sound);
+    }
 
-Sound::~Sound()
-{
-	if(sound) {Mix_FreeChunk(sound);}
-	sound = NULL;
+    _sound = nullptr;
 }
 
-//============================================================================================================================
-
-Mix_Chunk* Sound::GetSound() const
-{
-	if(sound)
-	{
-		return sound;
-	}
-	else
-	{
-		return NULL;
-	}
+Mix_Chunk* sound::sound() const {
+    if (_sound) {
+        return _sound;
+    } else {
+        return nullptr;
+    }
 }
 
-//============================================================================================================================
-
-bool Sound::IsValid()
-{
-	return (sound != NULL);
+bool sound::valid() {
+    return _sound != nullptr;
 }
-
-//=========================================================================================================================

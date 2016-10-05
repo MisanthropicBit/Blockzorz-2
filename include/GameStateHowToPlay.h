@@ -1,50 +1,47 @@
-#ifndef GAME_STATE_HOW_TO_PLAY_H
-#define GAME_STATE_HOW_TO_PLAY_H
+#ifndef BLOCKZORZ2_GAME_STATE_HOW_TO_PLAY_HPP
+#define BLOCKZORZ2_GAME_STATE_HOW_TO_PLAY_HPP
 
-#include "GameState.h"
-#include "Button.h"
+#include "game_state.hpp"
+#include "button.hpp"
 
-class GameStateHowToPlay : public GameState
-{
+class game_state_howtoplay : public game_state {
 	public:
-		GameStateHowToPlay();
-		~GameStateHowToPlay();
+		game_state_howtoplay();
+		~game_state_howtoplay();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 		
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
+		void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void mouse_move(int mx, int my, int dx, int dy, Uint8 state);
+		void left_button_down(int mx, int my);
 
 	private:
 		int titlex;
 		int textx;
 		int texty;
-
 		int cx;
 		int cy;
 		float offsetx;
 		float offsety;
 		float angle;
 
-		Button backbutton;
+		button back_button;
 
-		SDL_Surface* EyeCandy;
-		SDL_Surface* Title;
-		SDL_Surface* Cursor;
-		SDL_Surface* Line1;
-		SDL_Surface* Line2;
-		SDL_Surface* Line3;
-		SDL_Surface* Line4;
-		SDL_Surface* Line5;
-		SDL_Surface* Line6;
-		SDL_Surface* Line7;
-		SDL_Surface* Line8;
+		SDL_Surface* eye_candy;
+		SDL_Surface* title;
+		SDL_Surface* cursor;
+		SDL_Surface* line1;
+		SDL_Surface* line2;
+		SDL_Surface* line3;
+		SDL_Surface* line4;
+		SDL_Surface* line5;
+		SDL_Surface* line6;
+		SDL_Surface* line7;
+		SDL_Surface* line8;
 };
-
 
 #endif

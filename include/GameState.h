@@ -1,25 +1,19 @@
-#ifndef GAME_STATE_H
-#define GAME_STATE_H
+#ifndef BLOCKZORZ2_GAME_STATE_HPP
+#define BLOCKZORZ2_GAME_STATE_HPP
 
-//=========================================================================================================================
+#include "event.hpp"
 
-#include "Event.h"
-
-//=========================================================================================================================
-
-class GameState : public Event // Abstract base class
-{
+// Abstract base class 
+class game_state : public event {
 	public:
-		GameState();
-		~GameState();
+		game_state();
+		~game_state();
 
-		virtual bool Load()                    = 0; // All
-		virtual void OnEvent(SDL_Event& event) = 0; // thesefunctions
-		virtual void Update(int dt)            = 0; // functions
-		virtual void Draw()                    = 0; // are pure
-		virtual void UnLoad()                  = 0; // virtual
+		virtual bool load()                     = 0;
+		virtual void on_event(SDL_Event& event) = 0;
+		virtual void update(int dt)             = 0;
+		virtual void draw()                     = 0;
+		virtual void unload()                   = 0;
 };
-
-//=========================================================================================================================
 
 #endif

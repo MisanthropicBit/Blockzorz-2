@@ -1,47 +1,37 @@
-#ifndef MENUITEM_H
-#define MENUITEM_H
+#ifndef BLOCKZORZ2_MENUITEM_HPP
+#define BLOCKZORZ2_MENUITEM_HPP
 
-//=========================================================================================================================
-
-#include "Object.h"
-#include "Color.h"
-#include "SDL.h"
+#include "object.hpp"
+#include "color.hpp"
+#include <SDL.h>
 #include <vector>
-using namespace std;
 
-//=========================================================================================================================
+class font;
+class menu;
 
-class Font;
-class Menu;
-
-//=========================================================================================================================
-
-// Abstract base class
-class MenuItem : public Object
-{
+class menu_item : public object {
 	public:
-		MenuItem(Color& normal, Color& selected);
+		menu_item(const Color& normal, const color& selected);
 
-		virtual bool OnMouseMotion(int x, int y);
-		virtual bool OnMouseButtonDown(int x, int y);
-		virtual void OnMouseButtonUp();
-		virtual void OnEnter() = 0;
-		virtual bool OnRightKey() = 0;
-		virtual bool OnLeftKey() = 0;
+		virtual bool mouse_motion(int x, int y);
+		virtual bool mouse_button_down(int x, int y);
+		virtual void mouse_button_up();
+		virtual void enter() = 0;
+		virtual bool right_key() = 0;
+		virtual bool left_key() = 0;
+		virtual void draw() = 0;
 
-		virtual void Draw() = 0;
+		void clicked(bool flag);
+		void select();
+		void deselect();
+		//void cursor(bool flag);
 
-		void Clicked(bool flag);
-		void Select();
-		void Deselect();
-		//void Cursor(bool flag);
+		bool clicked() const;
+		bool has_hover() const;
+		bool has_cursor() const;
+		virtual std::string title() const;
 
-		bool IsClicked() const;
-		bool HasHover() const;
-		bool HasCursor() const;
-		virtual string GetTitle() const;
-
-		void SetMenu(Menu* menu);
+		void set_menu(menu* menu);
 
 
 	protected:
@@ -54,30 +44,29 @@ class MenuItem : public Object
 		Menu* menu; // pointer to parent
 };
 
-//=========================================================================================================================
-
-class Button : public MenuItem
-{
+class button : public menu_item {
 	public:
-		Button(const string& title, Color& normal, Color& selected, int w, int h);
-		~Button();
+		button(const std::string& title,
+               const color& normal,
+               const color& selected,
+               int w,
+               int h);
+		~button();
 
-		bool OnMouseMotion(int x, int y);
-		bool OnMouseButtonDown(int x, int y);
-		void OnMouseButtonUp();
-		void OnEnter();
-		bool OnRightKey();
-		bool OnLeftKey();
+		bool mouse_motion(int x, int y);
+		bool mouse_button_down(int x, int y);
+		void mouse_button_up();
+		void enter();
+		bool right_key();
+		bool left_key();
 
-		void RenderItem();
+		void render_item();
 
-		string GetTitle() const;
+        std::string title() const;
 
 	protected:
-		string title;
+        std::string title;
 };
-
-//=========================================================================================================================
 
 //class AnimatedButton : public MenuItem
 //{
@@ -87,29 +76,26 @@ class Button : public MenuItem
 //	private:
 //};
 
-//=========================================================================================================================
-
-class Selection : public MenuItem
-{
+class selection : public menu_item {
 	public:
-		Selection(const string& default, vector<string> choices, Color& normal, Color& selected);
+		selection(const std::string& default,
+                  const std::vector<string>& choices,
+                  const color& normal,
+                  const color& selected);
 
-		void AddChoice(const string& choice);
+		void add_choice(const std::string& choice);
+		bool mouse_motion(int x, int y);
+		void enter();
+		bool right_key();
+		bool left_key();
 
-		bool OnMouseMotion(int x, int y);
-		void OnEnter();
-		bool OnRightKey();
-		bool OnLeftKey();
+		void draw();
 
-		void Draw();
-
-		string GetTitle() const;
+        std::string title() const;
 
 	private:
 		int chosen;
-		vector<string> Choices;
+        std::vector<string> choices;
 };
-
-//=========================================================================================================================
 
 #endif

@@ -1,46 +1,46 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef BLOCKZORZ2_VECTOR_HPP
+#define BLOCKZORZ2_VECTOR_HPP
 
 #include <math.h>
-const float PI = 3.14159265f;
+
+const float PI           = 3.14159265f;
 const float DEGS_TO_RADS = PI/180.f;
 
-// Simple 2D vector class
-class Vector
-{
+// TODO: vector -> vector2?
+class vector {
 	public:
-		Vector();
-		Vector(float x, float y);
+		vector();
+		vector(float x, float y);
 
-		void SetAngle(float angle);
-		float Angle() const;
-		float Length() const;
-		bool IsZero();
-		void Zero();
+		void set_angle(float angle);
+		float angle() const;
+		float length() const;
+		bool is_zero();
+		void zero();
 
 		// Operators
-		Vector operator+ (const Vector& v);
-		Vector operator- (const Vector& v);
-		Vector operator* (const Vector& v);
-		Vector operator/ (const Vector& v);
+		vector operator+ (const vector& v);
+		vector operator- (const vector& v);
+		vector operator* (const vector& v);
+		vector operator/ (const vector& v);
 
-		void operator+= (const Vector& v);
-		void operator-= (const Vector& v);
-		void operator*= (const Vector& v);
-		void operator/= (const Vector& v);
+		void operator+= (const vector& v);
+		void operator-= (const vector& v);
+		void operator*= (const vector& v);
+		void operator/= (const vector& v);
 
-		Vector operator+ (float f);
-		Vector operator- (float f);
-		Vector operator* (float f);
-		Vector operator/ (float f);
+		vector operator+ (float f);
+		vector operator- (float f);
+		vector operator* (float f);
+		vector operator/ (float f);
 
 		void operator+= (float f);
 		void operator-= (float f);
 		void operator*= (float f);
 		void operator/= (float f);
 
-		bool operator== (const Vector& v);
-		bool operator!= (const Vector& v);
+		bool operator== (const vector& v);
+		bool operator!= (const vector& v);
 
 		float x; // public access
 		float y;

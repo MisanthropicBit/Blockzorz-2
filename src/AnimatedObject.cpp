@@ -1,21 +1,17 @@
-#include "AnimatedObject.h"
-#include "Graphics.h"
+#include "animated_object.hpp"
+#include "graphics.hpp"
 
-AnimatedObject::AnimatedObject() : Object()
-{
+animated_object::animated_object() : object() {
 }
 
-AnimatedObject::~AnimatedObject()
-{
+animated_object::~animated_object() {
 }
 
-void AnimatedObject::Draw()
-{
-	Graphics::DrawImage(image, position.x, position.y, animation.GetCurrentFrame() * 25, 0, 25, 25);
+void animated_object::draw() {
+	Graphics::draw_image(image, position.x, position.y, animation.current_frame() * 25, 0, 25, 25);
 }
 
-void AnimatedObject::Update(int dt)
-{
-	Object::Update(dt);
-	animation.Animate(dt);
+void animated_object::update(int dt) {
+	object::update(dt);
+	animation.animate(dt);
 }

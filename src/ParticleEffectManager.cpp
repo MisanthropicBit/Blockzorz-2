@@ -1,100 +1,73 @@
-#include "ParticleEffectManager.h"
-#include "ParticleEffect.h"
+#include "particle_effect_manager.hpp"
+#include "particle_effect.hpp"
 
-//=========================================================================================================================
-
-ParticleEffectManager::ParticleEffectManager()
-{
-	particles = 0;
-    Effects.clear();
+particle_effect_manager::particle_effect_manager() {
+    particles = 0;
+    effects.clear();
 }
 
-//=========================================================================================================================
+particle_effect_manager::~particle_effect_manager() {
+    for (int i = 0; i < effects.size(); ++i) {
+        delete effects[i];
+    }
 
-ParticleEffectManager::~ParticleEffectManager()
-{
-	for(int i = 0; i < Effects.size(); ++i)
-		delete Effects[i];
-
-	Effects.clear();
+    effects.clear();
 }
 
-//=========================================================================================================================
-
-void ParticleEffectManager::AddEffect(ParticleEffect* effect)
-{
-	if(effect)
-		Effects.push_back(effect);
+void particle_effect_manager::add_effect(const particle_effect* effect) {
+    if (effect) {
+        effects.push_back(effect);
+    }
 }
 
-//=========================================================================================================================
+bool particle_effect_manager::remove_effect(int id) {
+    if (id < 0 || id > Effects.size() - 1) {
+        return false;
+    }
 
-bool ParticleEffectManager::RemoveEffect(int id)
-{
-	if(id < 0 || id > Effects.size() - 1)
-		return false;
+    delete effects[id];
+    effects.erase(effects.begin() + id);
 
-	delete Effects[id];
-	Effects.erase(Effects.begin() + id);
-
-	return true;
+    return true;
 }
 
-//=========================================================================================================================
-
-void ParticleEffectManager::Update(float deltatime)
-{
-	for(int i = 0; i < Effects.size(); ++i)
-	{
-		if(!Effects[i]->IsDead())
-			Effects[i]->Update(deltatime);
-		else
-		{
-			RemoveEffect(i);
-			--i;
-		}
-	}
+void particle_effect_manager::update(float delta_time) {
+    for (int i = 0; i < effects.size(); ++i) {
+        if (!effects[i]->dead()) {
+            effects[i]->update(delta_time);
+        } else {
+            remove_effect(i);
+            --i;
+        }
+    }
 }
 
-//=========================================================================================================================
-
-void ParticleEffectManager::Draw()
-{
-	for(int i = 0; i < Effects.size(); ++i)
-	{
-		if(Effects[i]->IsVisible())
-			Effects[i]->Draw();
-	}
+void particle_effect_manager::draw() {
+    for (int i = 0; i < effects.size(); ++i) {
+        if (effects[i]->visible()) {
+            effects[i]->draw();
+        }
+    }
 }
 
-//=========================================================================================================================
+void particle_effect_manager::clear() {
+    if (effects.empty()) {
+        return;
+    }
 
-void ParticleEffectManager::Clear()
-{
-	if(Effects.empty())
-		return;
+    for (int i = 0; i < effects.size(); ++i) {
+        if (effects[i]) {
+            delete effects[i];
+        }
+    }
 
-	for(int i = 0; i < Effects.size(); ++i)
-	{
-		if(Effects[i])
-			delete Effects[i];
-	}
-
-	Effects.clear();
+    effects.clear();
 }
 
-//=========================================================================================================================
-
-int ParticleEffectManager::GetNoParticleEffects() const
-{
-	return Effects.size();
+int particle_effect_manager::effects_size() const {
+    return Effects.size();
 }
 
-//=========================================================================================================================
-
-int ParticleEffectManager::GetNoParticles() const
-{
-	return particles;
+int particle_effect_manager::particle_size() const {
+    return particles;
 }
-
-//=========================================================================================================================

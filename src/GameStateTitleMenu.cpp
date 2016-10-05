@@ -1,45 +1,32 @@
-#include "GameStateTitleMenu.h"
+#include "game_state_title_menu.hpp"
 
-GameStateTitleMenu::GameStateTitleMenu(const string& textfile) : GameState(textfile)
-{
+game_state_title_menu::game_state_title_menu(const std::string& textfile) : game_state(textfile) {
 }
 
-GameStateTitleMenu::~GameStateTitleMenu()
-{
+game_state_title_menu::~game_state_title_menu() {
 }
 
-bool GameStateTitleMenu::Load()
-{
-	BackGround = NULL;
-	Title      = NULL;
+bool game_state_title_menu::load() {
+	background = graphics::load_image("");
+	title      = graphics::load_image("");
 
-	BackGround = Graphics::LoadImage("");
-	Title      = Graphics::LoadImage("");
-
-	if(BackGround && Title)
-		return true;
-
-	return false;
+	return background && title;
 }
 
-void GameStateTitleMenu::HandleEvent()
-{
+void game_state_title_menu::handle_event() {
 }
 
-void GameStateTitleMenu::Update(int dt)
-{
-	GameState::Update(dt);
+void game_state_title_menu::update(int dt) {
+	game_state::update(dt);
 }
 
-void GameStateTitleMenu::Draw()
-{
+void game_state_title_menu::draw() {
 }
 
-void GameStateTitleMenu::UnLoad()
-{
-	SDL_FreeSurface(BackGround);
-	SDL_FreeSurface(Title);
+void game_state_title_menu::un_load() {
+	SDL_FreeSurface(background);
+	SDL_FreeSurface(title);
 
-	BackGround = NULL;
-	Title	   = NULL;
+	background = nullptr;
+	title	   = nullptr;
 }

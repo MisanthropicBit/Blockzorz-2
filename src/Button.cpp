@@ -1,13 +1,8 @@
-#include "Button.h"
-#include "Graphics.h"
-#include "AudioManager.h"
+#include "button.hpp"
+#include "graphics.hpp"
+#include "audio_manager.hpp"
 
-//=========================================================================================================================
-// Button class
-//=========================================================================================================================
-
-Button::Button()
-{
+button::button() {
 	hover    = false;
 	selected = false;
 	caption  = "";
@@ -15,134 +10,97 @@ Button::Button()
 	alpha    = 0.f;
 }
 
-//=========================================================================================================================
-
-Button::~Button()
-{
-	if(image)
+button::~button() {
+	if(image) {
 		SDL_FreeSurface(image);
+    }
 
 	image = NULL;
 }
 
-//=========================================================================================================================
-
-bool Button::Load(const string& caption, const string& fontfile, Color& color, int size, int x, int y)
-{
-	Font font("./Fonts/biocomv2.ttf", size);
+bool button::load(const std::string& caption,
+                  const std::string& fontfile,
+                  const color& color,
+                  int size,
+                  int x,
+                  int y) {
+	font font("./fonts/biocomv2.ttf", size);
 	this->caption = caption;
 	rect.x = x;
-	rect.y = y - (font.GetHeight() - font.GetAscent() - font.GetDescent());
-	image = font.LoadTextImage(caption, color);
+	rect.y = y - (font.height() - font.ascent() - font.descent());
+	image  = font.load_text_image(caption, color);
 
-	if(image)
-	{
+	if(image) {
 		rect.w = image->w;
-		rect.h = font.GetHeight() + font.GetDescent();
+		rect.h = font.height() + font.descent();
 		return true;
 	}
 
-	font.Close();
+	font.close();
 	return false;
 }
 
-//=========================================================================================================================
-
-void Button::Draw()
+void button::draw()
 {
-	Graphics::DrawImage(image, rect.x, rect.y);
+	graphics::draw_image(image, rect.x, rect.y);
 }
 
-//=========================================================================================================================
-
-void Button::SetAlpha(float alpha)
-{
-	if(alpha >= 0.f && alpha <= 1.f)
-	{
+void button::set_alpha(float alpha) {
+	if (alpha >= 0.f && alpha <= 1.f) {
 		this->alpha = alpha;
-		Graphics::SetTransparency(image, alpha);
+		graphics::set_transparency(image, alpha);
 	}
 }
 
-//=========================================================================================================================
-
-void Button::Select()
-{
+void button::select() {
 	selected = true;
 }
 
-//=========================================================================================================================
-
-void Button::Deselect()
-{
+void button::deselect() {
 	selected = false;
 }
 
-//=========================================================================================================================
-
-bool Button::IsSelected() const
-{
+bool button::is_selected() const {
 	return selected;
 }
 
-//=========================================================================================================================
-
-bool Button::HasMouseHover(int mx, int my)
-{
-	if(mx >= rect.x && mx <= rect.x + rect.w && my >= rect.y && my <= rect.y + rect.h)
+bool button::has_mouse_hover(int mx, int my) {
+	if (mx >= rect.x && mx <= rect.x + rect.w && my >= rect.y && my <= rect.y + rect.h) {
 		return true;
+    }
 
 	return false;
 }
 
-//=========================================================================================================================
-
-void Button::OnMouseMove(int mx, int my)
-{
-	if(HasMouseHover(mx, my))
-	{
-		if(!IsSelected())
-		{
-			Select();
-			SetAlpha(0.f);
-			AudioManager::GetManager()->PlaySound("Click", 0);
+void button::mouse_move(int mx, int my) {
+	if (has_mouse_hover(mx, my)) {
+		if (!selected()) {
+			select();
+			set_alpha(0.f);
+			audio_manager::get()->play_sound("click", 0);
 		}
-	}
-	else
-	{
-		if(IsSelected())
-		{
-			Deselect();
-			SetAlpha(0.8f);
+	} else {
+		if (selected()) {
+			deselect();
+			set_alpha(0.8f);
 		}
 	}
 }
 
-//=========================================================================================================================
-// AnimatedButton class
-//=========================================================================================================================
-
-AnimatedButton::AnimatedButton()
-{
+animated_button::animated_button() {
 	frame = 0;
 }
 
-//=========================================================================================================================
-
-AnimatedButton::~AnimatedButton()
-{
+animated_button::~animated_button() {
 }
 
-//=========================================================================================================================
+bool animated_button::load(const std::string& imagefile, int x, int y) {
+	if(!image_file.empty()) {
+		image = graphics::load_image(image_file);
 
-bool AnimatedButton::Load(const std::string& imagefile, int x, int y)
-{
-	if(!imagefile.empty())
-	{
-		image = Graphics::LoadImage(imagefile);
-
-		if(!image)
+		if(!image) {
 			return false;
+        }
 
 		rect.w = image->w;
 		rect.h = image->h;
@@ -154,25 +112,14 @@ bool AnimatedButton::Load(const std::string& imagefile, int x, int y)
 	return true;
 }
 
-//=========================================================================================================================
-
-void AnimatedButton::Draw()
-{
-	Graphics::DrawImage(image, rect.x, rect.y, frame * rect.w/2, 0, rect.w/2, rect.h);
+void animated_button::draw() {
+	graphics::draw_image(image, rect.x, rect.y, frame * rect.w/2, 0, rect.w/2, rect.h);
 }
 
-//=========================================================================================================================
-
-void AnimatedButton::SetFrame(int frame)
-{
+void animated_button::set_frame(int frame) {
 	this->frame = frame;
 }
 
-//=========================================================================================================================
-
-int AnimatedButton::GetFrame() const
-{
+int animated_button::frame() const {
 	return frame;
 }
-
-//=========================================================================================================================

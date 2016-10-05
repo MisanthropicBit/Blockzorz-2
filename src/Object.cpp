@@ -1,127 +1,96 @@
-#include "Object.h"
-#include "Graphics.h"
-#include "Color.h"
+#include "object.hpp"
+#include "graphics.hpp"
+#include "color.hpp"
 #include <iostream>
 
-//=========================================================================================================================
-
-Object::Object()
-{
-	w = 0;
-	h = 0;
+object::object() {
+	w     = 0;
+	h     = 0;
 	image = NULL;
+	dead  = false;
 	position.Zero();
 	speed.Zero();
 	acceleration.Zero();
-	dead = false;
 }
 
-//=========================================================================================================================
-
-Object::Object(const string& file, int w, int h)
-{
-	w = 0;
-	h = 0;
+object::object(const std::string& file, int w, int h) {
+	w     = 0;
+	h     = 0;
 	image = NULL;
+	dead  = false;
 	position.Zero();
 	speed.Zero();
 	acceleration.Zero();
-	dead = false;
 
-	Load(file, w, h);
+	load(file, w, h);
 }
 
-//=========================================================================================================================
-
-Object::Object(const string& file, Color& colorkey, int w, int h)
-{
-	w = 0;
-	h = 0;
+object::object(const std::string& file, const color& color_key, int w, int h) {
+	w     = 0;
+	h     = 0;
 	image = NULL;
+	dead  = false;
 	position.Zero();
 	speed.Zero();
 	acceleration.Zero();
-	dead = false;
 
-	Load(file, colorkey, w, h);
+	load(file, color_key, w, h);
 }
 
-//=========================================================================================================================
+object::~object() {
+	if (image) {
+        SDL_FreeSurface(image);
+    }
 
-Object::~Object()
-{
-	if(image)
-		SDL_FreeSurface(image);
-
-	image = NULL;
+	image = nullptr;
 }
 
-//=========================================================================================================================
-
-void Object::Load(const string& file, int w, int h)
-{
-	if((image = Graphics::LoadImage(file)) == NULL) {return;}
+void object::load(const std::string& file, int w, int h) {
+	if ((image = graphics::load_image(file)) == nullptr) {
+        return;
+    }
 
 	this->w = w;
 	this->h = h;
 }
 
-//=========================================================================================================================
+void object::load(const std::string& file, color& color_key, int w, int h) {
+	if ((image = graphics::load_image(file)) == nullptr) {
+        return;
+    }
 
-void Object::Load(const string& file, Color& colorkey, int w, int h)
-{
-	if((image = Graphics::LoadImage(file)) == NULL) {return;}
-
-	Graphics::SetTransparencyColor(image, colorkey);
+	graphics::set_transparency_color(image, color_key);
 
 	this->w = w;
 	this->h = h;
 }
 
-//=========================================================================================================================
-
-void Object::Draw()
-{
-	if(!image)
-	{
-		cerr << "Error (Object): Unable to draw Object. No image data available" << endl;
+void object::draw() {
+	if (!image) {
+        std::cerr << "Error (Object): Unable to draw Object. No image data available" << std::endl;
 		return;
 	}
 
-	Graphics::DrawImage(image, position.x, position.y);
+	graphics::draw_image(image, position.x, position.y);
 }
 
-//=========================================================================================================================
-
-void Object::Update(int dt)
-{
-	speed += acceleration;
+void object::update(int dt) {
+	speed    += acceleration;
 	position += speed * dt;
 }
 
-//=========================================================================================================================
+void object::set_image(SDL_Surface* new_image) {
+	if (image) {
+        SDL_FreeSurface(image);
+    }
 
-void Object::SetImage(SDL_Surface* newimage)
-{
-	if(image)
-		SDL_FreeSurface(image);
-
-	image = NULL;
 	image = newimage;
 }
 
-//=========================================================================================================================
-
-SDL_Surface* Object::GetImage() const
-{
+SDL_Surface* object::image() const {
 	return image;
 }
 
-//========================================================================================================================
-
-bool Object::IsDead() const
-{
-	return dead;
+bool object::dead() const {
+	return _dead;
 }
-
-//=========================================================================================================================

@@ -1,18 +1,14 @@
-#ifndef BLOCK_H
-#define BLOCK_H
+#ifndef BLOCKZORZ2_BLOCK_HPP
+#define BLOCKZORZ2_BLOCK_HPP
 
-#include "AnimatedObject.h"
-
-#include <string>
-using namespace std;
+#include "animated_object.h"
 
 const int BLOCK_WIDTH  = 25;
 const int BLOCK_HEIGHT = 25;
 const float SWAP_SPEED = 0.5f; // Speed at which the blocks swap
 const float FALL_SPEED = 0.1f; // The speed blocks fall with when the game is in progress
 
-enum BlockType
-{
+enum block_type {
 	BLOCK_TYPE_RED = 0,
 	BLOCK_TYPE_BLUE,
 	BLOCK_TYPE_GREEN,
@@ -21,34 +17,31 @@ enum BlockType
 	BLOCK_TYPE_NOGOOD
 };
 
-//===========================================================================================================================================================
-
-class Block : public AnimatedObject
-{
+class block : public animated_object {
 	public:
-		Block();
-		Block(BlockType type, int row, int col);
-		~Block();
+		block();
+		block(block_type type, int row, int col);
+		~block();
 
-		virtual void Update(int dt);
-		virtual void Draw();
+		virtual void update(int dt);
+		virtual void draw();
 
-		void Fall();
-		void Kill();
-		void SwapLeft();
-		void SwapRight();
-		void Check();
-		void DontCheck();
-		void SetDropY(int dropy);
+		void fall();
+		void kill();
+		void swap_left();
+		void swap_right();
+		void check();
+		void dont_check();
+		void set_dropy(int dropy);
 
-		bool NeedsChecking() const;
-		bool IsDead() const;
-		bool IsFalling() const;
-		bool IsSwapping() const;
-		BlockType GetBlockType() const;
-		int GetDropY() const;
-		int GetRow() const;
-		int GetCol() const;
+		bool needs_checking() const;
+		bool dead() const;
+		bool falling() const;
+		bool swapping() const;
+		block_type block_type() const;
+		int get_dropy() const;
+		int row() const;
+		int column() const;
 
 	protected:
 		int row;
@@ -56,10 +49,10 @@ class Block : public AnimatedObject
 		int swapx;
 		int swapy;
 		int dropy;
-		BlockType type;
-		bool isfalling;
-		bool isswapping;
-		bool check;
+		block_type type;
+		bool _falling;
+		bool _swapping;
+		bool _check;
 };
 
 #endif

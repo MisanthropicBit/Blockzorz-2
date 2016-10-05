@@ -1,28 +1,25 @@
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef BLOCKZORZ2_GRAPHICS_HPP
+#define BLOCKZORZ2_GRAPHICS_HPP
 
-#include "SDL.h"
-#include "SDL_image.h"
+#include <SDL.h>
+#include <SDL_image.h>
 #include <string>
-using namespace std;
+#include "color.hpp"
 
-class Color;
-
-class Graphics
-{
+class graphics {
     public:
-        Graphics();
+        graphics();
 
-        static SDL_Surface* LoadImage(const string& file);
-		static SDL_Surface* LoadImage(const string& file, Color& transparent);
+        static SDL_Surface* load_image(const std::string& file);
+		static SDL_Surface* load_image(const std::string& file, color& transparent);
 
-        static bool DrawImage(SDL_Surface* source, float x, float y);
-        static bool DrawImage(SDL_Surface* source, float x, float y, int sx, int sy, int w, int h); // Draws only part of the source image
-		static void DrawHorizontalLine(int x1, int x2, int y, int thickness, Color& color);
-        static void DrawVerticalLine(int y1, int y2, int x, int thickness, Color& color);
+        static bool draw_image(SDL_Surface* source, float x, float y);
+        static bool draw_image(SDL_Surface* source, float x, float y, int sx, int sy, int w, int h); // Draws only part of the source image
+		static void draw_horizontal_line(int x1, int x2, int y, int thickness, color& color);
+        static void draw_vertical_line(int y1, int y2, int x, int thickness, color& color);
 
-		static bool SetTransparencyColor(SDL_Surface* source, Color& color);
-		static void SetTransparency(SDL_Surface* source, float alpha);
+		static bool set_transparency_color(SDL_Surface* source, color& color);
+		static void set_transparency(SDL_Surface* source, float alpha);
 };
 
 #endif

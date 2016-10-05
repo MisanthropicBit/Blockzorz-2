@@ -1,197 +1,125 @@
-#include "Vector.h"
+#include "vector.hpp"
 
-//=========================================================================================================================
-
-Vector::Vector()
-{
-	this->x = 0.f;
-	this->y = 0.f;
+vector::vector() {
+    this->x = 0.f;
+    this->y = 0.f;
 }
 
-//=========================================================================================================================
-
-Vector::Vector(float x, float y)
-{
-	this->x = x;
-	this->y = y;
+vector::vector(float x, float y) {
+    this->x = x;
+    this->y = y;
 }
 
-//=========================================================================================================================
+void vector::set_angle(float angle) {
+    float angle_radians = angle * DEGS_TO_RADS;
 
-void Vector::SetAngle(float angle)
-{
-	float angleradians = angle * DEGS_TO_RADS;
-
-	x *= cos(angleradians);
-	y *= sin(angleradians);
+    x *= std::cos(angle_radians);
+    y *= std::sin(angle_radians);
 }
 
-//=========================================================================================================================
+float vector::angle() const {
+    float result = atan2(y, x);
 
-float Vector::Angle() const
-{
-	float result = atan2(y, x);
-	if(result < 0) {result += 360;}
-	if(result > 0) {result -= 360;}
+    if (result < 0) {
+        result += 360;
+    }
 
-	return result;
+    if (result > 0) {
+        result -= 360;
+    }
+
+    return result;
 }
 
-//=========================================================================================================================
-
-float Vector::Length() const
-{
-	return (x * x + y * y);
+float vector::length() const {
+    return x * x + y * y;
 }
 
-bool Vector::IsZero()
-{
-	if(x == 0 && y == 0)
-	{
-		return true;
-	}
-
-	return false;
+bool vector::is_zero() {
+    return x == 0 && y == 0;
 }
 
-void Vector::Zero()
-{
-	x = 0;
-	y = 0;
+void vector::zero() {
+    x = 0;
+    y = 0;
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator+ (const Vector& v)
-{
-	return (Vector(this->x + v.x, this->y + v.y));
+vector vector::operator+(const vector& v) {
+    return vector(this->x + v.x, this->y + v.y);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator- (const Vector& v)
-{
-	return (Vector(this->x - v.x, this->y - v.y));
+vector vector::operator-(const vector& v) {
+    return vector(this->x - v.x, this->y - v.y);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator* (const Vector& v)
-{
-	return (Vector(this->x * v.x, this->y * v.y));
+vector vector::operator*(const vector& v) {
+    return vector(this->x * v.x, this->y * v.y);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator/ (const Vector& v)
-{
-	return (Vector(this->x / v.x, this->y / v.y));
+vector vector::operator/(const vector& v) {
+    return vector(this->x / v.x, this->y / v.y);
 }
 
-//=========================================================================================================================
-
-void Vector::operator+= (const Vector& v)
-{
-	this->x += v.x;
-	this->y += v.y;
+void vector::operator+=(const vector& v) {
+    this->x += v.x;
+    this->y += v.y;
 }
 
-//=========================================================================================================================
-
-void Vector::operator-= (const Vector& v)
-{
-	this->x -= v.x;
-	this->y -= v.y;
+void vector::operator-=(const vector& v) {
+    this->x -= v.x;
+    this->y -= v.y;
 }
 
-//=========================================================================================================================
-
-void Vector::operator*= (const Vector& v)
-{
-	this->x *= v.x;
-	this->y *= v.y;
+void vector::operator*=(const vector& v) {
+    this->x *= v.x;
+    this->y *= v.y;
 }
 
-//=========================================================================================================================
-
-void Vector::operator/= (const Vector& v)
-{
-	this->x /= v.x;
-	this->y /= v.y;
+void vector::operator/=(const vector& v) {
+    this->x /= v.x;
+    this->y /= v.y;
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator+ (float f)
-{
-	return (Vector(this->x + f, this->y + f));
+vector vector::operator+(float f) {
+    return vector(this->x + f, this->y + f);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator- (float f)
-{
-	return (Vector(this->x - f, this->y - f));
+vector vector::operator-(float f) {
+    return vector(this->x - f, this->y - f);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator* (float f)
-{
-	return (Vector(this->x * f, this->y * f));
+vector vector::operator* (float f) {
+    return vector(this->x * f, this->y * f);
 }
 
-//=========================================================================================================================
-
-Vector Vector::operator/ (float f)
-{
-	return (Vector(this->x / f, this->y / f));
+vector vector::operator/(float f) {
+    return vector(this->x / f, this->y / f);
 }
 
-//=========================================================================================================================
-
-void Vector::operator+= (float f)
-{
-	this->x += f;
-	this->y += f;
+void vector::operator+=(float f) {
+    this->x += f;
+    this->y += f;
 }
 
-//=========================================================================================================================
-
-void Vector::operator-= (float f)
-{
-	this->x -= f;
-	this->y -= f;
+void vector::operator-=(float f) {
+    this->x -= f;
+    this->y -= f;
 }
 
-//=========================================================================================================================
-
-void Vector::operator*= (float f)
-{
-	this->x *= f;
-	this->y *= f;
+void vector::operator*=(float f) {
+    this->x *= f;
+    this->y *= f;
 }
 
-//=========================================================================================================================
-
-void Vector::operator/= (float f)
-{
-	this->x /= f;
-	this->y /= f;
+void vector::operator/=(float f) {
+    this->x /= f;
+    this->y /= f;
 }
 
-//=========================================================================================================================
-
-bool Vector::operator== (const Vector& v)
-{
-	return (this->x == v.x && this->y == v.y);
+bool vector::operator==(const vector& v) {
+    return this->x == v.x && this->y == v.y;
 }
 
-//=========================================================================================================================
-
-bool Vector::operator!= (const Vector& v)
-{
-	return (this->x != v.x || this->y != v.y);
+bool vector::operator!=(const vector& v) {
+    return this->x != v.x || this->y != v.y;
 }
-
-//=========================================================================================================================

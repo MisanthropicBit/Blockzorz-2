@@ -1,24 +1,22 @@
-#ifndef GAME_STATE_TITLE_MENU_H
-#define GAME_STATE_TITLE_MENU_H
+#ifndef BLOCKZORZ2_GAME_STATE_TITLE_MENU_HPP
+#define BLOCKZORZ2_GAME_STATE_TITLE_MENU_HPP
 
-#include "GameState.h" // Parent
+#include <SDL.h>
+#include "game_state.hpp"
 
-#include "SDL.h"
-
-class GameStateTitleMenu : public GameState
-{
+class game_state_title_menu : public game_state {
 	public:
-		GameStateTitleMenu(const string& textfile);
-		~GameStateTitleMenu();
+		game_state_title_menu(const std::string& textfile);
+		~game_state_title_menu();
 
-		bool Load();
-		void HandleEvent();
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void handle_event();
+		void update(int dt);
+		void draw();
+		void unload();
 
-		SDL_Surface* BackGround;
-		SDL_Surface* Title;
+		SDL_Surface* Background;
+		SDL_Surface* title;
 };
 
 #endif

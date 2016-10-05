@@ -1,193 +1,140 @@
-#include "ParticleEffect.h"
-#include "Particle.h"
-#include "Graphics.h"
+#include "particle_effect.hpp"
+#include "particle.hpp"
+#include "graphics.hpp"
 
-//***************************************************************************************************************************
-// PARTICLE EFFECT BASE CLASS
-//***************************************************************************************************************************
-
-ParticleEffect::ParticleEffect()
-{
-	x = 0.f;
-	y = 0.f;
-	show = false;
-	dead = false;
-	type = EFFECT_TYPE_NONE;
-	gravity.Zero();
-	sharedImage = NULL;
-	Particles.clear();
+particle_effect::particle_effect() {
+    x            = 0.f;
+    y            = 0.f;
+    show         = false;
+    dead         = false;
+    type         = EFFECT_TYPE_NONE;
+    shared_image = NULL;
+    gravity.Zero();
+    Particles.clear();
 }
 
-//=========================================================================================================================
+particle_effect::~particle_effect() {
+    for (int i = 0; i < particles.size(); ++i) {
+        if (particles[i]) {
+            delete particles[i];
+        }
+    }
 
-ParticleEffect::~ParticleEffect()
-{
-	for(int i = 0; i < Particles.size(); ++i)
-	{
-		if(Particles[i])
-			delete Particles[i];
-	}
+    particles.clear();
 
-	Particles.clear();
+    if (shared_image) {
+        SDL_FreeSurface(shared_image);
+    }
 
-	if(sharedImage)
-		SDL_FreeSurface(sharedImage);
-
-	sharedImage = NULL;
+    shared_image = nullptr;
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::Update(float deltatime)
-{
-	// pure virtual
+void particle_effect::update(float delta_time) {
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::Draw()
-{
-	for(int i = 0; i < Particles.size(); ++i)
-	{
-		if(Particles[i] && !Particles[i]->IsDead())
-			Particles[i]->Draw(sharedImage);
-	}
+void particle_effect::draw() {
+    for (int i = 0; i < particles.size(); ++i) {
+        if (particles[i] && !particles[i]->dead())
+            particles[i]->draw(shared_image);
+    }
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::SetUpdateInterval(float low, float high)
-{
-	for(int i = 0; i < Particles.size(); ++i)
-	{
-		Particles[i]->SetUpdateInterval((low + rand() % (int)(high - low + 1)));
-	}
+void particle_effect::set_update_interval(float low, float high) {
+    for (int i = 0; i < particles.size(); ++i) {
+        particles[i]->set_update_interval((low + rand() % (int)(high - low + 1)));
+    }
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::Show()
-{
-	show = true;
+void particle_effect::show() {
+    show = true;
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::Hide()
-{
-	show = false;
+void particle_effect::hide() {
+    show = false;
 }
 
-//=========================================================================================================================
-
-bool ParticleEffect::IsVisible() const
-{
-	return show;
+bool particle_effect::visible() const {
+    return show;
 }
 
-//=========================================================================================================================
-
-bool ParticleEffect::IsDead() const
-{
-	return dead;
+bool particle_effect::dead() const {
+    return _dead;
 }
 
-//=========================================================================================================================
+void particle_effect::clear() {
+    if (particles.empty()) {
+        return;
+    }
 
-void ParticleEffect::Clear()
-{
-	if(Particles.empty())
-		return;
+    for (int i = 0; i < particles.size(); ++i) {
+        if (particles[i]) {
+            delete particles[i];
+        }
+    }
 
-	for(int i = 0; i < Particles.size(); ++i)
-	{
-		if(Particles[i])
-			delete Particles[i];
-	}
-
-	Particles.clear();
+    particles.clear();
 }
 
-//=========================================================================================================================
-
-int ParticleEffect::GetSize() const
-{
-	return Particles.size();
+int particle_effect::size() const {
+    return particles.size();
 }
 
-//=========================================================================================================================
-
-EffectType ParticleEffect::GetType() const
-{
-	return type;
+effect_type particle_effect::type() const {
+    return type;
 }
 
-//=========================================================================================================================
-
-void ParticleEffect::SetGravity(float x, float y)
-{
-	gravity.x = x;
-	gravity.y = y;
+void particle_effect::set_gravity(float x, float y) {
+    gravity.x = x;
+    gravity.y = y;
 }
 
-//=========================================================================================================================
-
-Vector& ParticleEffect::GetGravity()
-{
-	return gravity;
+vector& ParticleEffect::gravity() {
+    return _gravity;
 }
 
-//***************************************************************************************************************************
-// PARTICLE EXPLOSION EFFECT
-//***************************************************************************************************************************
+particle_explosion_effect::particle_explosion_effect(const std::string& file,
+                                                     int size,
+                                                     float force,
+                                                     float alphadecay,
+                                                     float x,
+                                                     float y)
+                                                     : particle_effect() {
+    this->x          = x;
+    this->y          = y;
+    type             = EFFECT_TYPE_EXPLOSION;
+    sharedImage      = graphics::load_image(file, color::white);
+    float angle_step = 360.f / static_cast<float>(size);
+    
+    for (int i = 0; i < size; ++i) {
+        explosion_particle* ep = new explosion_particle(force, alpha_decay);
+        ep->set_angle(i * angle_step);// + rand() % 11 - 5.f); // set angle +/- 5 for randomness
+        ep->set_xy(x, y);
 
-ParticleExplosionEffect::ParticleExplosionEffect(const string& file, int size, float force, float alphadecay, float x, float y) : ParticleEffect()
-{
-	this->x = x;
-	this->y = y;
-	type = EFFECT_TYPE_EXPLOSION;
-	sharedImage = Graphics::LoadImage(file, Color::White);
+        if (!gravity.is_zero()) {
+            ep->acceleration.x = gravity.x;
+            ep->acceleration.y = gravity.y;
+        }
 
-	float anglestep = 360.f / (float)size;
-	
-	for(int i = 0; i < size; ++i)
-	{
-		ExplosionParticle* ep = new ExplosionParticle(force, alphadecay);
-		ep->SetAngle(i * anglestep);// + rand() % 11 - 5.f); // set angle +/- 5 for randomness
-		ep->SetXY(x, y);
-
-		if(!gravity.IsZero())
-		{
-			ep->acceleration.x = gravity.x;
-			ep->acceleration.y = gravity.y;
-		}
-
-		Particles.push_back(ep);
-	}
+        particles.push_back(ep);
+    }
 }
 
-//=========================================================================================================================
+void particle_explosion_effect::update(float delta_time) {
+    // No increment in this for loop!
+    for (std::vector<particle*>::iterator it = particles.begin(); it != particles.end();) {
+        if ((*it)->dead()) {
+            delete *it;
+            it = particles.erase(it);
+        } else {
+            if ((*it)) {
+                (*it)->update(delta_time);
+            }
+    
+            ++it;
+        }
+    }
 
-void ParticleExplosionEffect::Update(float deltatime)
-{
-	for(vector<Particle*>::iterator it = Particles.begin(); it != Particles.end();) // No increment in this for loop!
-	{
-		if((*it)->IsDead())
-		{
-			delete (*it);
-			it = Particles.erase(it);
-		}
-		else
-		{
-			if((*it))
-				(*it)->Update(deltatime);
-	
-			++it;
-		}
-	}
-
-	if(Particles.empty())
-		dead = true;
+    if (particles.empty()) {
+        dead = true;
+    }
 }
-
-//=========================================================================================================================

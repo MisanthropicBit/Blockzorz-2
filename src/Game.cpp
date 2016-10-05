@@ -1,226 +1,192 @@
-#include "Game.h"
-#include "Screen.h"
-#include "SDL_ttf.h"
-#include "AudioManager.h"
-#include "GameStateIntro.h"
-#include "GameStateManager.h"
-#include "Font.h"
+#include "game.hpp"
+#include "screen.hpp"
+#include <SDL_ttf.h>
+#include "audio_manager.hpp"
+#include "game_state_intro.hpp"
+#include "game_state_manager.hpp"
+#include "font.hpp"
 #include <fstream>
 #include <iostream>
-using namespace std;
 
-//=========================================================================================================================
+settings game::game_settings;
 
-Settings Game::gamesettings;
-
-//=========================================================================================================================
-
-Game::Game()
-{
+game::game() {
 }
 
-//=========================================================================================================================
-
-Game::~Game()
-{
+game::~game() {
 }
 
-//=========================================================================================================================
-
-int Game::Run()
+int game::run()
 {
-	if(!Initialize()) {return -1;}
+	if (!initialize()) {
+        return -1;
+    }
 
-	while(GameStateManager::GetManager().IsRunning())
-	{
-		while(SDL_PollEvent(&event))
-		{
-			HandleEvent();
+	while (game_state_manager::get().is_running()) {
+		while (SDL_PollEvent(&event)) {
+			handle_event();
 		}
 
-		Think();
-		Draw();
+		update();
+		draw();
 	}
 
-	CleanUp();
-
+	clean_up();
 	return 0;
 }
 
-//=========================================================================================================================
-
-bool Game::Initialize()
-{
+bool game::initialize() {
 	// Initialize SDL
-	if(SDL_Init(SDL_INIT_VIDEO) == -1) {return false;}
+	if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+        return false;
+    }
 
 	// Load TTF
-	if(TTF_Init() == -1) {return false;}
+	if (TTF_Init() == -1) {
+        return false;
+    }
 
 	// Load the audiomanager...
-	if(!AudioManager::LoadAudioManager(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1000))
-		return false;
+	if (!audio_manager::load_audio_manager(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 1000)) {
+        return false;
+    }
+
 	// ...and sounds
-	AudioManager::LoadSounds("./Sounds/Sounds.txt");
-	AudioManager::LoadMusic("./Music/Music.txt");
-	AudioManager::GetManager()->AllocateChannels(2);
+	audio_manager::load_sounds("./sounds/sounds.txt");
+	audio_manager::load_music("./music/music.txt");
+	audio_manager::get()->allocate_channels(2);
 
 	// Set settings to default values
-	Game::gamesettings.mvolume = 50;
-	Game::gamesettings.svolume = 50;
-	Game::gamesettings.fullscreen = false;
-	Game::gamesettings.CFmodeunlocked = false;
+	game::game_settings.music_volume     = 50;
+	game::game_settings.sound_volume     = 50;
+	game::game_settings.full_screen      = false;
+	game::game_settings.cf_mode_unlocked = false;
 
-	debugtext.SetFontFile("./Fonts/biocomv2.ttf", 20);
+	debug_text.set_font_file("./fonts/biocomv2.ttf", 20);
 
-	// Settings format:
-	// MusicVolume:%
-	// SoundVolume:%
-	// Fullscreen:1 or 0
-
-	ifstream file("./Data/Settings.b2s");
-	string line;
+    std::ifstream file("./data/settings.b2s");
+    std::string line;
+    std::string temp;
 	int counter = 0;
-	size_t npos = 0;
-	string temp;
+    std::size_t npos = 0;
 
-	if(file.is_open())
-	{
-		getline(file, line);
+	if (file.is_open()) {
+        std::getline(file, line);
 		npos = line.find_first_of(":");
 		temp = line.substr(npos + 1);
-		Game::gamesettings.mvolume = Font::String2Int(temp);
+		game::game_settings.music_volume = font::string2int(temp);
 
-		getline(file, line);
+        std::getline(file, line);
 		npos = line.find_first_of(":");
 		temp = line.substr(npos + 1);
-		Game::gamesettings.svolume = Font::String2Int(temp);
+		game::game_settings.sound_volume = font::string2int(temp);
 
-		getline(file, line);
+        std::getline(file, line);
 		npos = line.find_first_of(":");
 		temp = line.substr(npos + 1);
 
-		if(Font::String2Int(temp) == 1)
-			Game::gamesettings.fullscreen = true;
-		else
-			Game::gamesettings.fullscreen = false;
+		if (font::string2int(temp) == 1) {
+            game::game_settings.fullscreen = true;
+        } else {
+			game::game_settings.fullscreen = false;
+        }
 
-		getline(file, line);
+        std::getline(file, line);
 		npos = line.find_first_of(":");
 		temp = line.substr(npos + 1);
 		
-		if(Font::String2Int(temp) == 1)
-			Game::gamesettings.CFmodeunlocked = true;
-		else
-			Game::gamesettings.CFmodeunlocked = false;
-	}
-	else
-	{
-		cerr << "Error: Failed to load game settings" << endl
-			 << "File: " << file << endl;
+		if (font::string2int(temp) == 1) {
+			game::gamesettings.cf_mode_unlocked = true;
+        } else {
+			game::gamesettings.cf_mode_unlocked = false;
+        }
+	} else {
+        std::cerr << "Error: Failed to load game settings" << std::endl
+			      << "File: " << file << std::endl;
 	}
 
-	AudioManager::GetManager()->SetSoundVolume(MIX_MAX_VOLUME * Game::gamesettings.svolume / 100.f);
-	AudioManager::GetManager()->SetMusicVolume(MIX_MAX_VOLUME * Game::gamesettings.mvolume / 100.f);
+	audio_manager::get()->set_sound_volume(MIX_MAX_VOLUME * game::game_settings.sound_volume / 100.f);
+	audio_manager::get()->set_music_volume(MIX_MAX_VOLUME * game::game_settings.music_volume / 100.f);
 
 	// Create the screen
-	if(Game::gamesettings.fullscreen)
-	{
-		if(!Screen::CreateScreen(640, 480, 0, SDL_FULLSCREEN | SDL_HWSURFACE))
-			return false;
-	}
-	else
-	{
-		if(!Screen::CreateScreen(640, 480, 0, SDL_SWSURFACE))
-			return false;
+	if (game::game_settings.full_screen) {
+		if (!screen::create_screen(640, 480, 0, SDL_FULLSCREEN | SDL_HWSURFACE)) {
+            return false;
+        }
+	} else {
+		if (!screen::create_screen(640, 480, 0, SDL_SWSURFACE)) {
+            return false;
+        }
 	}
 
-	Screen::GetScreen().SetCaption("Blockzorz 2 (" + VERSION + ")");
-	Screen::GetScreen().SetIcon("./Graphics/Images/Icon.bmp");
-
-	GameStateManager::GetManager().ChangeState(new GameStateIntro());
+	screen::get().set_caption("Blockzorz 2 (" + VERSION + ")");
+	screen::get().set_icon("./graphics/images/icon.bmp");
+	game_state_manager::get().change_state(new game_state_intro());
 
 	return true;
 }
 
-//=========================================================================================================================
-
-void Game::HandleEvent()
-{
-	GameStateManager::GetManager().PassEvent(event);
+void game::handle_event() {
+	GameStateManager::get().pass_event(event);
 }
 
-//=========================================================================================================================
-
-void Game::Think()
-{
-	int dt = gametimer.GetDeltaTime();
-	gametimer.Update();
-	GameStateManager::GetManager().UpdateStates(dt);
+void game::update() {
+	int dt = game_timer.delta_time();
+	game_timer.update();
+	game_state_manager::get().update_states(dt);
 }
 
-//=========================================================================================================================
+void game::draw() {
+	game_state_manager::get().draw_states();
+	screen::get().update_screen();
 
-void Game::Draw()
-{
-	GameStateManager::GetManager().DrawStates();
-	Screen::GetScreen().UpdateScreen();
-
-	debugtext.DrawHQText("FPS: " + Font::Int2String(gametimer.GetFPS()), Color::DarkBlue, 5, 5);
+	debug_text.draw_hq_text("FPS: " + font::int2string(game_timer.fps()), color::dark_blue, 5, 5);
 }
 
-//=========================================================================================================================
-
-void Game::CleanUp()
-{
+void game::clean_up() {
 	// Save settings
-	ofstream file;
-	file.open("./Data/Settings.b2s", ios::trunc); // Clear last save
+    std::ofstream file;
+    file.open("./Data/settings.b2s", ios::trunc); // Clear last save
 
-	if(file.is_open())
+	if (file.is_open()) {
+        file.close();
+    }
+
+	file.open("./data/settings.b2s");
+
+	if (file.is_open()) {
+		file << "MusicVolume:" << font::int2string(game::game_settings.music_volume) << std::endl;
+		file << "SoundVolume:" << font::int2string(game::game_settings.sound_volume) << std::endl;
+
+		if (game::game_settings.full_screen) {
+            file << "Fullscreen:1" << std::endl;
+        } else {
+			file << "Fullscreen:0" << std::endl;
+        }
+
+		if (game::game_settings.cf_mode_unlocked) {
+            file << "ModeUnlocked:1";
+        } else {
+            file << "ModeUnlocked:0";
+        }
+
 		file.close();
-
-	file.open("./Data/Settings.b2s");
-
-	if(file.is_open())
-	{
-		file << "MusicVolume:" << Font::Int2String(Game::gamesettings.mvolume) << endl;
-		file << "SoundVolume:" << Font::Int2String(Game::gamesettings.svolume) << endl;
-
-		if(Game::gamesettings.fullscreen)
-			file << "Fullscreen:1" << endl;
-		else
-			file << "Fullscreen:0" << endl;
-
-		if(Game::gamesettings.CFmodeunlocked)
-			file << "ModeUnlocked:1";
-		else
-			file << "ModeUnlocked:0";
-
-		file.close();
-	}
-	else
-	{
-		cerr << "Error: Failed to save settings" << endl;
+	} else {
+        std::cerr << "Error: Failed to save settings" << std::endl;
 	}
 
-	GameStateManager::GetManager().CleanUpStates();
-	AudioManager::UnLoadSounds();
-	AudioManager::UnLoadMusic();
+	game_state_manager::get().clean_up_states();
+	audio_manager::un_load_sounds();
+	audio_manager::un_load_music();
 	TTF_Quit();
-	Screen::DestroyScreen();
+	screen::destroy_screen();
 
 	SDL_Quit();
 }
 
-//=========================================================================================================================
-
 // Main function
-int main(int argc, char* args[])
-{
-	Game game;
+int main(int argc, char* args[]) {
+	game game;
 
-	return game.Run();
+	return game.run();
 }
-
-//=========================================================================================================================

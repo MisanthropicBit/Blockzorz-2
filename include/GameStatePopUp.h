@@ -1,67 +1,67 @@
-#ifndef GAME_STATE_POP_UP
-#define GAME_STATE_POP_UP
+#ifndef BLOCKZORZ2_GAME_STATE_POP_UP_HPP
+#define BLOCKZORZ2_GAME_STATE_POP_UP_HPP
 
-#include "GameState.h"
-#include "Button.h"
-#include "ParticleEffectManager.h"
+#include "game_state.hpp"
+#include "button.hpp"
+#include "particle_effect_manager.hpp"
 
-class GameStatePopUp : public GameState
-{
+class game_state_popup : public game_state {
 	public:
-		GameStatePopUp();
-		GameStatePopUp(const string& caption, const string& text, const string& confirmtext, const string& quittext, GameState* returnstate);
-		~GameStatePopUp();
+		game_state_popup();
+		game_state_popup(const std::string& caption,
+                         const std::string& text,
+                         const std::string& confirmtext,
+                         const std::string& quittext,
+                         game_state* return_state);
+		~game_state_popup();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
+		void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
+		void left_button_down(int mx, int my);
 
 	private:
-		Button Yes;
-		Button No;
+		button yes;
+		button no;
 
 	protected:
-		SDL_Surface* Fader;
-		SDL_Surface* PopUp;
-		SDL_Surface* Title;
-		SDL_Surface* Text;
+		SDL_Surface* fader;
+		SDL_Surface* popup;
+		SDL_Surface* title;
+		SDL_Surface* text;
 
 		int titlex;
 		int textx;
 
-		GameState* returnstate;
+		game_state* return_state;
 };
 
-class GameStateModeUnlocked : public GameStatePopUp
-{
+class game_state_mode_unlocked : public game_state_popup {
 	public:
-		GameStateModeUnlocked();
-		GameStateModeUnlocked(const string& caption, const string& text, GameState* returnstate);
-		~GameStateModeUnlocked();
+		game_state_mode_unlocked ();
+		game_state_mode_unlocked (const string& caption, const string& text, GameState* returnstate);
+		~game_state_mode_unlocked ();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
+		void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
+		void left_button_down(int mx, int my);
 
 	private:
-		ParticleEffectManager peManager;
-		int particleinterval;
-
-		Button awesome;
-
-		GameState* returnstate;
+		particle_effect_manager manager;
+		int particle_interval;
+		button awesome;
+		game_state* return_state;
 };
 
 #endif

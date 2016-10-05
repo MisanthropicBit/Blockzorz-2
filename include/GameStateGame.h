@@ -1,46 +1,45 @@
-#ifndef GAME_STATE_GAME_H
-#define GAME_STATE_GAME_H
+#ifndef BLOCKZORZ2_GAME_STATE_GAME_HPP
+#define BLOCKZORZ2_GAME_STATE_GAME_HPP
 
-#include "GameState.h"
-#include "Timer.h"
-#include "Font.h"
-#include "Player.h"
-#include "Button.h"
-#include "ParticleEffectManager.h"
+#include "game_state.hpp"
+#include "timer.hpp"
+#include "font.hpp"
+#include "player.hpp"
+#include "button.hpp"
+#include "particle_effect_manager.hpp"
 
-class GameStateGame : public GameState
-{
+class game_state_game : public game_state {
 	public:
-		GameStateGame();
-		~GameStateGame();
+		game_state_game();
+		~game_state_game();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
+		void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
+		void left_button_down(int mx, int my);
 
 	private:
-		Font font;
-		Timer clock;
-		Button quit;
-		AnimatedButton musicbutton;
-		AnimatedButton soundbutton;
-		bool gamestarted;
-		bool enterhighscore;
+		font font;
+		timer clock;
+		button quit;
+		animated_button music_button;
+		animated_button sound_button;
+		bool games_tarted;
+		bool entering_highscore;
 
-		Player player;
+		player player;
 
-		SDL_Surface* EyeCandy;
-		SDL_Surface* Gamefield;
-		SDL_Surface* Arrow;
-		SDL_Surface* Score;
-		SDL_Surface* Time;
-		SDL_Surface* Combos;
+		SDL_Surface* eye_candy;
+		SDL_Surface* game_field;
+		SDL_Surface* arrow;
+		SDL_Surface* score;
+		SDL_Surface* time;
+		SDL_Surface* combos;
 };
 
 #endif

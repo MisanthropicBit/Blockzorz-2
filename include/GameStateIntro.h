@@ -1,54 +1,42 @@
-#ifndef GAME_STATE_INTRO_H
-#define GAME_STATE_INTRO_H
+#ifndef BLOCKZORZ2_GAME_STATE_INTRO_HPP
+#define BLOCKZORZ2_GAME_STATE_INTRO_HPP
 
-//=========================================================================================================================
-
-#include "GameState.h"
-
+#include "game_state.hpp"
 #include <string>
-using namespace std;
 
-//=========================================================================================================================
-
-enum IntroState
-{
-	INTRO_STATE_FADING_IN,
+enum intro_state {
+	INTRO_STATE_FADING_IN = 0,
 	INTRO_STATE_DISPLAYING,
 	INTRO_STATE_FADING_OUT
 };
 
-//=========================================================================================================================
-
-class GameStateIntro : public GameState
-{
+class game_state_intro : public game_state {
 	public:
-		GameStateIntro();
+		game_state_intro();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 
-		void Reset();
+		void reset();
 
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnLeftButtonDown(int mx, int my);
+		void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void left_button_down(int mx, int my);
 
 	private:
 		SDL_Surface* logo;
-		SDL_Surface* SDL_logo;
+		SDL_Surface* sdl_logo;
 		SDL_Surface* fader;
-		string soundeffect;
-		int whichlogo;
+        std::string sound_effect;
+		int which_logo;
 		float alpha;
-		IntroState istate;
-		int updateinterval;
-		int fadeintime;
-		int displaytime;
-		int fadeouttime;
+		intro_state state;
+		int update_interval;
+		int fade_in_time;
+		int display_time;
+		int fadeout_time;
 };
-
-//=========================================================================================================================
 
 #endif

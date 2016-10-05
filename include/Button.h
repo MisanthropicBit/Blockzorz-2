@@ -1,28 +1,25 @@
-#ifndef BUTTON_H
-#define BUTTON_H
+#ifndef BLOCKZORZ2_BUTTON_HPP
+#define BLOCKZORZ2_BUTTON_HPP
 
-#include "Font.h"
-#include "Color.h"
-
+#include "font.h"
+#include "color.h"
 #include <string>
-using namespace std;
 
-class Button
-{
+class button {
 	public:
-		Button();
-		~Button();
+		button();
+		~button();
 
-		virtual bool Load(const string& caption, const string& fontfile, Color& color, int size, int x, int y);
-		virtual void Draw();
+		virtual bool load(const std::string& caption, const std::string& filename, color& color, int size, int x, int y);
+		virtual void draw();
 
-		void SetAlpha(float alpha);
-		void Select();
-		void Deselect();
-		bool IsSelected() const;
+		void set_alpha(float alpha);
+		void select();
+		void deselect();
+		bool selected() const;
 
-		bool HasMouseHover(int mx, int my);
-		virtual void OnMouseMove(int mx, int my);
+		bool has_mouse_hover(int mx, int my);
+		virtual void on_mouse_move(int mx, int my);
 
 	protected:
 		bool hover;
@@ -33,19 +30,16 @@ class Button
 		float alpha;
 };
 
-//=========================================================================================================================
-
-class AnimatedButton : public Button
-{
+class animated_button : public button {
 	public:
-		AnimatedButton();
-		~AnimatedButton();
+		animated_button ();
+		~animated_button ();
 
-		bool Load(const string& imagefile, int x, int y);
-		void Draw();
+		bool load(const std::string& filename, int x, int y);
+		void draw();
 
-		void SetFrame(int frame);
-		int GetFrame() const;
+		void set_frame(int frame);
+		int get_frame() const;
 
 	private:
 		int frame;

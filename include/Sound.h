@@ -1,18 +1,16 @@
-#ifndef SOUND_H
-#define SOUND_H
+#ifndef BLOCKZORZ2_SOUND_HPP
+#define BLOCKZORZ2_SOUND_HPP
 
-#include "SDL_mixer.h"
+#include <SDL_mixer.h>
 #include <string>
-using namespace std;
 
-class Sound
-{
+class sound {
 	public:
-		Sound(const string& file);
-		~Sound();
+		sound(const std::string& file);
+		~sound();
 
-		Mix_Chunk* GetSound() const;
-		bool IsValid();
+		Mix_Chunk* get_sound() const;
+		bool valid() const;
 
 	protected:
 		Mix_Chunk* sound;

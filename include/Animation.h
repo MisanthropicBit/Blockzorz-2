@@ -1,23 +1,22 @@
-#ifndef ANIMATION_H
-#define ANIMATION_H
+#ifndef BLOCKZORZ2_ANIMATION_HPP
+#define BLOCKZORZ2_ANIMATION_HPP
 
-class Animation
-{
+class animation {
 	public:
-		Animation();
+		animation();
         
-		void Animate(int dt);
-		void Play();
-		void Stop();
+		void animate(int dt);
+		void play();
+		void stop();
 
-        void SetFrameRate(int framerate);
-        void SetCurrentFrame(int frame);
-		void SetMaxFrames(int maxframes);
-		void Oscillate();
-		void DontOscillate();
+        void set_framerate(int framerate);
+        void set_frame(int frame);
+		void set_max_frames(int maxframes);
+		void oscillate();
+		void stop_oscillate();
 
-        int GetCurrentFrame() const;
-		bool IsAnimating() const;
+        int current_frame() const;
+		bool is_animating() const;
 
     private:
 		int frame;

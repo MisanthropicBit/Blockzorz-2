@@ -1,42 +1,37 @@
-#ifndef PARTICLE_EFFECT_H
-#define PARTICLE_EFFECT_H
+#ifndef BLOCKZORZ2_PARTICLE_EFFECT_HPP
+#define BLOCKZORZ2_PARTICLE_EFFECT_HPP
 
-#include "SDL.h"
-
+#include <SDL.h>
 #include <vector>
 #include <string>
-using namespace std;
+#include "vector.h"
 
-#include "Vector.h"
-class Object;
-class Particle;
+class object;
+class particle;
 
-enum EffectType
-{
-	EFFECT_TYPE_NONE,
+enum effect_type {
+	EFFECT_TYPE_NONE = 0,
 	EFFECT_TYPE_EXPLOSION
 };
 
-// Abstrat base class
-class ParticleEffect
-{
+class particle_effect {
 	public:
-		ParticleEffect();
-		~ParticleEffect();
+		particle_effect();
+		~particle_effect();
 		
-		virtual void Update(float deltatime) = 0; // pure virtual, overridden in derived classes
-		void Draw();
+		virtual void update(float deltatime) = 0;
+		void draw();
 		
-		void SetUpdateInterval(float low, float high); // values in miliseconds
-		void Show();
-		void Hide();
-		bool IsVisible() const;
-		bool IsDead() const;
-		void Clear();
-		int GetSize() const;
-		EffectType GetType() const;
-		void SetGravity(float x, float y);
-		Vector& GetGravity();
+		void set_update_interval(float low, float high);
+		void show();
+		void hide();
+		bool is_visible() const;
+		bool is_dead() const;
+		void clear();
+		int size() const;
+		effect_type type() const;
+		void set_gravity(float x, float y);
+		vector& gravity();
 	
 	protected:
 		float x;
@@ -44,19 +39,18 @@ class ParticleEffect
 		bool show;
 		bool dead;
 		float force;
-		EffectType type;
-		Vector gravity;
+		effect_type type;
+		vector gravity;
 
 		SDL_Surface* sharedImage;
-		vector<Particle*> Particles;
+        std::vector<particle*> particles;
 };
 
-class ParticleExplosionEffect : public ParticleEffect
-{
+class particle_explosion_effect : public particle_effect {
 	public:
-		ParticleExplosionEffect(const string& file, int size, float force, float alphadecay, float x, float y);
+		particle_explosion_effect(const std::string& file, int size, float force, float alphadecay, float x, float y);
 
-		void Update(float deltatime);
+		void update(float deltatime);
 };
 
 #endif

@@ -1,51 +1,40 @@
-#include "Event.h"
+#include "event.hpp"
 
-//=========================================================================================================================
-
-Event::Event()
-{
+event::event() {
 }
 
-//=========================================================================================================================
-
-Event::~Event()
-{
+event::~event() {
 }
 
-//=========================================================================================================================
-
-void Event::OnEvent(SDL_Event& event)
-{
-    switch(event.type)
-	{
-        case SDL_ACTIVEEVENT:
-		{
-            switch(event.active.state)
-			{
-                case SDL_APPMOUSEFOCUS:
-				{
-					if(event.active.gain)
-						OnMouseFocus();
-					else
-						OnMouseBlur();
+void event::on_event(SDL_Event& event) {
+    switch(event.type) {
+        case SDL_ACTIVEEVENT: {
+            switch(event.active.state) {
+                case SDL_APPMOUSEFOCUS: {
+					if (event.active.gain) {
+						mouse_focus();
+                    } else {
+						mouse_blur();
+                    }
 
                     break;
                 }
-                case SDL_APPINPUTFOCUS:
-				{
-                    if(event.active.gain)
-						OnInputFocus();
-                    else
-						OnInputBlur();
+
+                case SDL_APPINPUTFOCUS: {
+                    if (event.active.gain) {
+						input_focus();
+                    } else {
+						input_blur();
+                    }
 
                     break;
                 }
-                case SDL_APPACTIVE:
-				{
-                    if(event.active.gain)
-						OnRestore();
-                    else
-						OnMinimize();
+                case SDL_APPACTIVE: {
+                    if (event.active.gain) {
+						restore();
+                    } else {
+						minimize();
+                    }
 
                     break;
                 }
@@ -54,65 +43,41 @@ void Event::OnEvent(SDL_Event& event)
             break;
         }
 
-        case SDL_KEYDOWN:
-		{
-            OnKeyDown(event.key.keysym.sym, event.key.keysym.mod, event.key.keysym.unicode);
+        case SDL_KEYDOWN: {
+            key_down(event.key.keysym.sym,
+                     event.key.keysym.mod,
+                     event.key.keysym.unicode);
             break;
         }
 
-        case SDL_KEYUP:
-		{
-            OnKeyUp(event.key.keysym.sym, event.key.keysym.mod, event.key.keysym.unicode);
+        case SDL_KEYUP: {
+            key_up(event.key.keysym.sym,
+                   event.key.keysym.mod,
+                   event.key.keysym.unicode);
             break;
         }
 
-        case SDL_MOUSEMOTION:
-		{
-            OnMouseMove(event.motion.x, event.motion.y, event.motion.xrel, event.motion.yrel, event.motion.state);
+        case SDL_MOUSEMOTION: {
+            mouse_move(event.motion.x,
+                       event.motion.y,
+                       event.motion.xrel,
+                       event.motion.yrel,
+                       event.motion.state);
             break;
         }
 
-        case SDL_MOUSEBUTTONDOWN:
-		{
-            switch(event.button.button)
-			{
-                case SDL_BUTTON_LEFT:
-				{
-                    OnLeftButtonDown(event.button.x, event.button.y);
+        case SDL_MOUSEBUTTONDOWN: {
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT: {
+                    left_button_down(event.button.x, event.button.y);
                     break;
                 }
-                case SDL_BUTTON_RIGHT:
-				{
-                    OnRightButtonDown(event.button.x, event.button.y);
+                case SDL_BUTTON_RIGHT: {
+                    right_button_down(event.button.x, event.button.y);
                     break;
                 }
-                case SDL_BUTTON_MIDDLE:
-				{
-                    OnMiddleButtonDown(event.button.x, event.button.y);
-                    break;
-                }
-            }
-
-            break;
-        }
-
-        case SDL_MOUSEBUTTONUP:
-		{
-            switch(event.button.button)
-			{
-                case SDL_BUTTON_LEFT:
-				{
-                    OnLeftButtonUp(event.button.x, event.button.y);
-                    break;
-                }
-                case SDL_BUTTON_RIGHT:
-				{
-                    OnRightButtonUp(event.button.x, event.button.y);
-                    break;
-                }
-                case SDL_BUTTON_MIDDLE:
-				{
-                    OnMiddleButtonUp(event.button.x, event.button.y);
+                case SDL_BUTTON_MIDDLE: {
+                    middle_button_down(event.button.x, event.button.y);
                     break;
                 }
             }
@@ -120,21 +85,37 @@ void Event::OnEvent(SDL_Event& event)
             break;
         }
 
-        case SDL_QUIT:
-		{
-            OnExit();
+        case SDL_MOUSEBUTTONUP: {
+            switch (event.button.button) {
+                case SDL_BUTTON_LEFT: {
+                    left_button_up(event.button.x, event.button.y);
+                    break;
+                }
+                case SDL_BUTTON_RIGHT: {
+                    right_button_up(event.button.x, event.button.y);
+                    break;
+                }
+                case SDL_BUTTON_MIDDLE: {
+                    middle_button_up(event.button.x, event.button.y);
+                    break;
+                }
+            }
+
             break;
         }
 
-        case SDL_VIDEORESIZE:
-		{
-            OnResize(event.resize.w, event.resize.h);
+        case SDL_QUIT: {
+            exit();
             break;
         }
 
-        case SDL_VIDEOEXPOSE:
-		{
-            OnExpose();
+        case SDL_VIDEORESIZE: {
+            resize(event.resize.w, event.resize.h);
+            break;
+        }
+
+        case SDL_VIDEOEXPOSE: {
+            expose();
             break;
         }
 
@@ -143,112 +124,56 @@ void Event::OnEvent(SDL_Event& event)
     }
 }
 
-//=========================================================================================================================
-
-void Event::OnInputFocus()
-{
+void event::input_focus() {
 }
 
-//=========================================================================================================================
-
-void Event::OnInputBlur()
-{
+void event::input_blur() {
 }
 
-//=========================================================================================================================
-
-void Event::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
+void event::key_down(SDLKey key, SDLMod modifier, Uint16 unicode) {
 }
 
-//=========================================================================================================================
-
-void Event::OnKeyUp(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
+void event::key_up(SDLKey key, SDLMod modifier, Uint16 unicode) {
 }
 
-//=========================================================================================================================
-
-void Event::OnMouseFocus()
-{
+void event::mouse_focus() {
 }
 
-//=========================================================================================================================
-
-void Event::OnMouseBlur()
-{
+void event::mouse_blur() {
 }
 
-//=========================================================================================================================
-
-void Event::OnMouseMove(int mx, int my, int relx, int rely, Uint8 state)
-{
+void event::mouse_move(int mx, int my, int relx, int rely, Uint8 state) {
 }
 
-//=========================================================================================================================
-
-void Event::OnLeftButtonDown(int mx, int my)
-{
+void event::left_button_down(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnLeftButtonUp(int mx, int my)
-{
+void event::left_button_up(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnRightButtonDown(int mx, int my)
-{
+void event::right_button_down(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnRightButtonUp(int mx, int my)
-{
+void event::right_button_up(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnMiddleButtonDown(int mx, int my)
-{
+void event::middle_button_down(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnMiddleButtonUp(int mx, int my)
-{
+void event::middle_button_up(int mx, int my) {
 }
 
-//=========================================================================================================================
-
-void Event::OnMinimize()
-{
+void event::minimize() {
 }
 
-//=========================================================================================================================
-
-void Event::OnRestore()
-{
+void event::restore() {
 }
 
-//=========================================================================================================================
-
-void Event::OnResize(int w, int h)
-{
+void event::resize(int w, int h) {
 }
 
-//=========================================================================================================================
-
-void Event::OnExpose()
-{
+void event::expose() {
 }
 
-//=========================================================================================================================
-
-void Event::OnExit()
-{
+void event::exit() {
 }
-
-//=========================================================================================================================

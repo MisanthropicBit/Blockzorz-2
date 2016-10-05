@@ -1,38 +1,35 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef BLOCKZORZ2_TIMER_HPP
+#define BLOCKZORZ2_TIMER_HPP
 
-#include "SDL.h"
+#include <SDL.h>
 #include <cstdio>
 #include <string>
-using namespace std;
 
-class Timer
-{
+class timer {
 	public:
-		Timer();
+		timer();
 		
-		void Update();
+		void update();
 
-		void Start();
-		void Pause();
+		void start();
+		void pause();
 
-		bool IsPaused() const;
+		bool paused() const;
 
-		int GetTime() const;
-		int GetDeltaTime();
-		int GetLastTick() const;
-		int GetFPS() const;
+		int get_time() const;
+		int get_delta_time();
+		int get_last_tick() const;
+		int get_fps() const;
 
-		string GetPrettyPrintTime();
+		string get_pretty_print_time();
 
-		static int GetElapsedTime();
-		static int GetElapsedMinutes();
-		static int GetElapsedSeconds();
+		static int elapsed_time();
+		static int elapsed_minutes();
+		static int elapsed_seconds();
 
 	protected:
 		bool started;
 		bool paused;
-
 		int startTick;
 		int pausedTick;
 		int lastTick;

@@ -1,180 +1,131 @@
-#include "GameStateIntro.h"
-#include "GameStateMenu.h"
-
-#include "GameStateManager.h"
-#include "Graphics.h"
-#include "AudioManager.h"
-#include "Screen.h"
+#include "game_state_intro.hpp"
+#include "game_state_menu.hpp"
+#include "game_state_manager.hpp"
+#include "graphics.hpp"
+#include "audio_manager.hpp"
+#include "screen.hpp"
 #include <iostream>
 
-//=========================================================================================================================
-
-GameStateIntro::GameStateIntro()
-{
-	logo  = NULL;
-	fader = NULL;
+game_state_intro::game_state_intro() {
+    logo  = nullptr;
+    fader = nullptr;
 }
 
-//=========================================================================================================================
+bool game_state_intro::load() {
+    logo            = graphics::load_image("./images/storm_games_logo.png");
+    sdl_logo        = graphics::load_image("./images/sdl_logo.png");
+    fader           = graphics::load_image("./images/fader.png");
+    sound_effect    = "RainAndThunder";
+    which_logo      = 1;
+    update_interval = 40;
+    reset();
 
-bool GameStateIntro::Load()
-{
-	logo     = Graphics::LoadImage("./Graphics/Images/StormGamesLogo.png");
-	SDL_logo = Graphics::LoadImage("./Graphics/Images/SDLlogo.png");
-	fader    = Graphics::LoadImage("./Graphics/Images/Fader.png");
-	soundeffect = "RainAndThunder";
-	whichlogo = 1;
-	updateinterval = 40;
-	Reset();
+    SDL_ShowCursor(0);
 
-	SDL_ShowCursor(0);
+    if (logo && sdl_logo && fader) {
+        audio_manager::get()->play_sound(sound_effect, 0);
+        return true;
+    }
 
-	if(logo && SDL_logo && fader) // all images loaded correctly
-	{
-		AudioManager::GetManager()->PlaySound(soundeffect, 0);
-		return true;
-	}
-
-	return false;
+    return false;
 }
 
-//=========================================================================================================================
-
-void GameStateIntro::OnEvent(SDL_Event& event)
-{
-	Event::OnEvent(event);
+void game_state_intro::on_event(SDL_Event& event) {
+    event::on_event(event);
 }
 
-//=========================================================================================================================
+void game_state_intro::update(int dt) {
+    if (istate == INTRO_STATE_FADING_IN) {
+        fadeintime -= dt;
 
-void GameStateIntro::Update(int dt)
-{
-	if(istate == INTRO_STATE_FADING_IN)
-	{
-		fadeintime -= dt;
-		if(fadeintime <= 0)
-		{
-			alpha += 0.05f;
-			Graphics::SetTransparency(fader, alpha);
-			fadeintime = updateinterval;
-		}
+        if (fadeintime <= 0) {
+            alpha += 0.05f;
+            graphics::set_transparency(fader, alpha);
+            fadeintime = updateinterval;
+        }
 
-		if(alpha >= 1.f)
-		{
-			alpha = 1.f;
-			Graphics::SetTransparency(fader, alpha);
-			istate = INTRO_STATE_DISPLAYING;
-		}
-	}
-	else if(istate == INTRO_STATE_DISPLAYING)
-	{
-		displaytime -= dt;
+        if (alpha >= 1.f) {
+            alpha = 1.f;
+            graphics::set_transparency(fader, alpha);
+            istate = INTRO_STATE_DISPLAYING;
+        }
+    } else if (istate == INTRO_STATE_DISPLAYING) {
+        displaytime -= dt;
 
-		if(displaytime <= 0)
-			istate = INTRO_STATE_FADING_OUT;
-	}
-	else if(istate == INTRO_STATE_FADING_OUT)
-	{
-		fadeouttime -= dt;
-		if(fadeouttime <= 0)
-		{
-			alpha -= 0.05f;
-			Graphics::SetTransparency(fader, alpha);
-			fadeouttime = updateinterval;
-		}
+        if (displaytime <= 0) {
+            istate = INTRO_STATE_FADING_OUT;
+        }
+    } else if (istate == INTRO_STATE_FADING_OUT) {
+        fadeouttime -= dt;
 
-		if(alpha <= 0.f)
-		{
-			alpha = 0.f;
-			Graphics::SetTransparency(fader, alpha);
+        if (fadeouttime <= 0) {
+            alpha -= 0.05f;
+            graphics::set_transparency(fader, alpha);
+            fadeouttime = updateinterval;
+        }
 
-			if(whichlogo == 1)
-			{
-				Reset();
-				whichlogo++;
-			}
-			else
-			{
-				GameStateManager::GetManager().ChangeState(new GameStateMenu());
-			}
-		}
-	}
+        if (alpha <= 0.f) {
+            alpha = 0.f;
+            graphics::set_transparency(fader, alpha);
+
+            if (which_logo == 1) {
+                reset();
+                ++which_logo;
+            } else {
+                game_state_manager::get().change_state(new game_state_menu());
+            }
+        }
+    }
 }
 
-//=========================================================================================================================
+void game_state_intro::draw() {
+    if (which_logo == 1) {
+        graphics::draw_image(logo, 0, 0);
+    } else {
+        graphics::draw_image(sdl_logo, 0, 0);
+    }
 
-void GameStateIntro::Draw()
-{
-	if(whichlogo == 1)
-	{
-		Graphics::DrawImage(logo, 0, 0);
-	}
-	else
-	{
-		Graphics::DrawImage(SDL_logo, 0, 0);
-	}
-
-	Graphics::DrawImage(fader, 0, 0);
+    graphics::draw_image(fader, 0, 0);
 }
 
-//=========================================================================================================================
+void game_state_intro::unload() {
+    SDL_FreeSurface(logo);
+    SDL_FreeSurface(sdl_logo);
+    SDL_FreeSurface(fader);
+    SDL_ShowCursor(1);
 
-void GameStateIntro::UnLoad()
-{
-	SDL_FreeSurface(logo);
-	SDL_FreeSurface(SDL_logo);
-	SDL_FreeSurface(fader);
+    logo     = nullptr;
+    SDL_logo = nullptr;
+    fader    = nullptr;
 
-	logo     = NULL;
-	SDL_logo = NULL;
-	fader    = NULL;
-
-	SDL_ShowCursor(1);
 }
 
-//=========================================================================================================================
-
-void GameStateIntro::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode)
-{
-	if(whichlogo == 1)
-	{
-		AudioManager::GetManager()->AllChannelsFadeOut(500);
-		whichlogo++;
-		Graphics::SetTransparency(fader, 0.f);
-		Reset();
-	}
-	else
-	{
-		GameStateManager::GetManager().ChangeState(new GameStateMenu());
-	}
+void GameStateIntro::OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode) {
+    if (which_logo == 1) {
+        audio_manager::get()->all_channels_fade_out(500);
+        ++which_logo;
+        graphics::set_transparency(fader, 0.f);
+        reset();
+    } else {
+        game_state_manager::get().change_state(new game_state_menu());
+    }
 }
 
-//=========================================================================================================================
-
-void GameStateIntro::OnLeftButtonDown(int mx, int my)
-{
-	if(whichlogo == 1)
-	{
-		AudioManager::GetManager()->AllChannelsFadeOut(500);
-		whichlogo++;
-		Graphics::SetTransparency(fader, 0.f);
-		Reset();
-	}
-	else
-	{
-		GameStateManager::GetManager().ChangeState(new GameStateMenu());
-	}
+void game_state_intro::left_button_down(int mx, int my) {
+    if (which_logo == 1) {
+        audio_manager::get()->all_channels_fadeout(500);
+        ++which_logo;
+        graphics::set_transparency(fader, 0.f);
+        reset();
+    } else {
+        game_state_manager::get().change_state(new game_state_menu());
+    }
 }
 
-//========================================================================================================================
-
-void GameStateIntro::Reset()
-{
-	alpha = 0.f;
-	fadeintime  = 100;
-	displaytime = 3000;
-	fadeouttime = 100;
-	istate = INTRO_STATE_FADING_IN;
+void game_state_intro::reset() {
+    alpha       = 0.f;
+    fadeintime  = 100;
+    displaytime = 3000;
+    fadeouttime = 100;
+    istate      = INTRO_STATE_FADING_IN;
 }
-
-//========================================================================================================================

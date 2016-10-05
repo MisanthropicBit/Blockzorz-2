@@ -1,127 +1,94 @@
-#include "Particle.h"
-#include "Graphics.h"
+#include "particle.hpp"
+#include "graphics.hpp"
 
-//***************************************************************************************************************************
-// PARTICLE BASE CLASS
-//***************************************************************************************************************************
-
-Particle::Particle(float alphadecay)
-{
-	this->alphadecay = alphadecay;
-	lifetime = 0.f; // 0% transparency
-	updateinterval = 0.f;
-	speed.x = 1.f;//(rand() % 10 + 1) / 10.f;
-	speed.y = 1.f;//(rand() % 10 + 1) / 10.f;
-	w = 0;
-	h = 0;
+particle::particle(float alphadecay) {
+    this->alpha_decay = alpha_decay;
+    lifetime          = 0.f; // 0% transparency
+    updateinterval    = 0.f;
+    speed.x           = 1.f;//(rand() % 10 + 1) / 10.f;
+    speed.y           = 1.f;//(rand() % 10 + 1) / 10.f;
+    w                 = 0;
+    h                 = 0;
 }
-
-//=========================================================================================================================
 
 void Particle::Reset(float x, float y)
 {
-	position.x = x;
-	position.y = y;
+    position.x = x;
+    position.y = y;
+    life_time  = 0.f;
+    time_left  = update_interval;
+    dead       = false;
 
-	lifetime = 0.f;
-	timeleft = updateinterval;
-	dead = false;
-
-	Graphics::SetTransparency(image, 0.f);
+    graphics::set_transparency(image, 0.f);
 }
-
-//=========================================================================================================================
 
 // This member function has not yet been tested!
-void Particle::Reset(Object* attachedTo)
-{
-	if(!attachedTo) {return;}
-	
-	position.x = attachedTo->position.x + attachedTo->w / 2 - w / 2;
-	position.y = attachedTo->position.y + attachedTo->h / 2 - h / 2;
+void particle::reset(object* attached_to) {
+    if (!attached_to) {
+        return;
+    }
+    
+    position.x = attached_to->position.x + attached_to->w / 2 - w / 2;
+    position.y = attached_to->position.y + attached_to->h / 2 - h / 2;
+    life_time  = 0.f;
+    time_left  = update_interval;
+    dead       = false;
 
-	lifetime = 0.f;
-	timeleft = updateinterval;
-	dead = false;
+    graphics::set_transparency(image, 0.f);
 
-	Graphics::SetTransparency(image, 0.f);
+    if (speed.is_zero()) {
+        speed.set_angle(rand() % 360);
+        speed *= (((rand() % (5 + 1)) + 5.f) / 10.f); // Scales the speed vector by a random factor between 0.5 and 1.0
+    } else {
+        float object_angle = attachedTo->speed.angle();
+        float low_angle    = objectangle - 135; // Image the attached object's speed is going in a 45 degree angle
+        float high_angle   = objectangle + 135;
 
-	if(speed.IsZero())
-	{
-		speed.SetAngle(rand() % 360);
-		speed *= (((rand() % (5 + 1)) + 5.f) / 10.f); // Scales the speed vector by a random factor between 0.5 and 1.0
-	}
-	else
-	{
-		float objectangle = attachedTo->speed.Angle();
-		float lowangle = objectangle - 135;  // Image the attached object's speed is going in a 45 degree angle
-		float highangle = objectangle + 135;
-
-		speed.SetAngle(lowangle + rand() % (int)(highangle - lowangle));
-		speed *= (((rand() % (5 + 1)) + 5.f) / 10.f); // Scales the speed vector by a random factor between 0.5 and 1.0
-	}
+        speed.set_angle(low_angle + rand() % (int)(high_angle - low_angle));
+        speed *= (((rand() % (5 + 1)) + 5.f) / 10.f); // Scales the speed vector by a random factor between 0.5 and 1.0
+    }
 }
 
-//=========================================================================================================================
-
-void Particle::SetXY(float x, float y)
-{
-	position.x = x;
-	position.y = y;
+void particle::set_xy(float x, float y) {
+    position.x = x;
+    position.y = y;
 }
 
-//=========================================================================================================================
-
-void Particle::SetAngle(float angle)
-{
-	speed.SetAngle(angle);
+void particle::set_angle(float angle) {
+    speed.set_angle(angle);
 }
 
-//=========================================================================================================================
-
-void Particle::SetUpdateInterval(float updateinterval)
-{
-	this->updateinterval = updateinterval;
-	timeleft = updateinterval;
+void particle::set_update_interval(float update_interval) {
+    this->update_interval = update_interval;
+    time_left = update_interval;
 }
 
-//=========================================================================================================================
-
-void Particle::Draw(SDL_Surface* sharedImage)
-{
-	Graphics::SetTransparency(sharedImage, lifetime);
-	Graphics::DrawImage(sharedImage, position.x, position.y);
+void particle::draw(SDL_Surface* shared_image) {
+    graphics::set_transparency(shared_image, life_time);
+    graphics::draw_image(shared_image, position.x, position.y);
 }
 
-//***************************************************************************************************************************
-// PARTICLE EXPLOSION
-//***************************************************************************************************************************
-
-ExplosionParticle::ExplosionParticle(float force, float alphadecay) : Particle(alphadecay)
-{
-	this->force = force;
-	speed *= force;
+explosion_particle::explosion_particle(float force, float alphadecay) : particle(alpha_decay) {
+    this->force  = force;
+    speed       *= force;
 }
 
-//=========================================================================================================================
+void explosion_particle::update(float delta_time) {
+    time_left -= delta_time;
+    object::update(delta_time);
 
-void ExplosionParticle::Update(float deltatime)
-{
-	timeleft -= deltatime;
-	Object::Update(deltatime);
+    if (time_left <= 0) {
+        // Time to change alpha value
+        life_time += alpha_decay;
 
-	if(timeleft <= 0) // Time to change alpha value
-	{
-		lifetime += alphadecay;
+        if (life_time > 1.f) {
+            life_time = 1.f;
+        }
 
-		if(lifetime > 1.f)
-			lifetime = 1.f;
+        time_left = update_interval;
 
-		timeleft = updateinterval;
-
-		if(lifetime >= 1.f)
-			dead = true;
-	}
+        if (life_time >= 1.f) {
+            dead = true;
+        }
+    }
 }
-
-//=========================================================================================================================

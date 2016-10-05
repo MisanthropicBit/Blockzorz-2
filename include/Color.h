@@ -1,51 +1,50 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef BLOCKZORZ2_COLOR_HPP
+#define BLOCKZORZ2_COLOR_HPP
 
-#include "SDL.h"
+#include <SDL.h>
 
-class Color
-{
-	public:
-		Color(int r = 0, int g = 0, int = 0);
-		
-		void SetRGB(int r, int g, int b);
-		void SetR(int r);
-		void SetG(int g);
-		void SetB(int b);
-		Uint8& GetR();
-		Uint8& GetG();
-		Uint8& GetB();
-		
-		Color operator+ (Color&) const;
-		Color operator- (Color&) const;
-		
-		Color& operator= (Color&);
-		Color operator+= (Color&);
-		Color operator-= (Color&);
-	
-		bool operator== (Color&) const;
-		
-		// Grayscale
-		static Color Black;
-		static Color Gray;
-		static Color White;
+class color {
+    public:
+        color(int r = 0, int g = 0, int = 0);
+        
+        void set_rgb(int r, int g, int b);
+        void set_red(int r);
+        void set_green(int g);
+        void set_blue(int b);
+        Uint8& red();
+        Uint8& green();
+        Uint8& blue();
+        
+        color operator+(color&) const;
+        color operator-(color&) const;
+        
+        color& operator=(color&);
+        color& operator+=(const color&);
+        color& operator-=(const color&);
+    
+        bool operator==(const color&) const;
+        
+        // Grayscale
+        static color black;
+        static color gray;
+        static color white;
 
-		// Standard Colors
-		static Color Red;
-		static Color Green;
-		static Color Blue;
-		static Color Yellow;
-		static Color Magenta;
-		static Color Cyan;
-		static Color Gold;
-		static Color Silver;
-		static Color Bronze;
+        // Standard Colors
+        static color red;
+        static color green;
+        static color blue;
+        static color yellow;
+        static color magenta;
+        static color cyan;
+        static color gold;
+        static color silver;
+        static color bronze;
 
-		// Dark Colors
-		static Color DarkBlue;
-	
-	private:
-		SDL_Color color;
+        // Dark Colors
+        static color darkblue;
+    
+    private:
+        SDL_Color _color;
 };
 
 #endif

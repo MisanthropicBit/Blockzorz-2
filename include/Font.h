@@ -1,62 +1,55 @@
-#ifndef FONT_H
-#define FONT_H
+#ifndef BLOCKZORZ2_FONT_HPP
+#define BLOCKZORZ2_FONT_HPP
 
-//=========================================================================================================================
-
-#include "SDL_ttf.h"
-#include "Color.h"
-
+#include <SDL_ttf.h>
+#include "color.hpp"
 #include <sstream>
 #include <string>
-using namespace std;
 
-//=========================================================================================================================
-
-class Font
-{
+class font {
     public:
-        Font();
-        Font(const string& fontfile, int size);
-        ~Font();
+        font();
+        font(const std::string& fontfile, int size);
+        ~font();
 
-		void Close();
+        void close();
 
-		SDL_Surface* LoadTextImage(const string& text, Color& color);
-		SDL_Surface* LoadHQTextImage(const string& text, Color& color);
+        SDL_Surface* load_text_image(const std::string& text,
+                                     const color& color);
+        SDL_Surface* load_hq_text_image(const std::string& text,
+                                        const color& color);
 
-		// Draw member functions
-		void DrawText(const string& text, Color& color, int x, int y);
-		void DrawTextTransparent(const string& text, Color& color, float alpha, int x, int y);
-		void DrawText(const string& text, Color& color, int x, int y, const string& newfont, int size);
-		void DrawHQText(const string& text, Color& color, int x, int y);
+        // Draw member functions
+        void draw_text(const std::string& text, color& color, int x, int y);
+        void draw_text_transparent(const std::string& text, color& color, float alpha, int x, int y);
+        void draw_text(const std::string& text, color& color, int x, int y, const std::string& newfont, int size);
+        void draw_hq_text(const std::string& text, color& color, int x, int y);
 
-		// Getters
-        TTF_Font* GetFont() const;
-        int GetSize() const;
-		int GetStyle() const;
-		int GetHeight() const;
-		int GetAscent() const;
-		int GetDescent() const;
-		int GetRecommendedSpacing();
-		int GetStringWidth(const string& s);
-		int GetStringHeight(const string& s);
+        // Getters
+        TTF_Font* get_font() const;
+        int size() const;
+        int style() const;
+        int height() const;
+        int ascent() const;
+        int descent() const;
+        int recommended_spacing();
+        int string_width(const std::string& s);
+        int string_height(const std::string& s);
 
-	    // Setters
-		void SetFontFile(const string& fontfile);
-		void SetFontFile(const string& fontfile, int size);
-		void SetSize(int size);
-		void SetStyle(int style);
-	
-		// Type conversion
-		static string Int2String(int i);
-		static string Float2String(float f);
-		static int String2Int(const string& s);
+        // Setters
+        void set_font_file(const std::string& fontfile);
+        void set_font_file(const std::string& fontfile, int size);
+        void set_size(int size);
+        void set_style(int style);
+    
+        // Type conversion
+        static std::string int2string(int i);
+        static std::string float2string(float f);
+        static int string2int(const std::string& s);
 
     private:
-        TTF_Font* font;
-        int size;
+        TTF_Font* _font;
+        int _size;
 };
-
-//=========================================================================================================================
 
 #endif

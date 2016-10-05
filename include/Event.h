@@ -1,51 +1,50 @@
-#ifndef EVENT_H
-#define EVENT_H
+#ifndef BLOCKZORZ2_EVENT_HPP
+#define BLOCKZORZ2_EVENT_HPP
 
-#include "SDL.h"
+#include <SDL.h>
 
-class Event
-{
+class event {
    public:
-        Event();
-		~Event();
+        event();
+		~event();
 
-        virtual void OnEvent(SDL_Event& event);
+        virtual void on_event(SDL_Event& event);
 
-        virtual void OnInputFocus();
+        virtual void input_focus();
 
-        virtual void OnInputBlur();
+        virtual void input_blur();
 
-        virtual void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
+        virtual void key_down(SDLKey key, SDLMod modifier, Uint16 unicode);
 
-        virtual void OnKeyUp(SDLKey key, SDLMod modifier, Uint16 unicode);
+        virtual void key_up(SDLKey key, SDLMod modifier, Uint16 unicode);
 
-        virtual void OnMouseFocus();
+        virtual void mouse_focus();
 
-        virtual void OnMouseBlur();
+        virtual void mouse_blur();
 
-        virtual void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
+        virtual void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
 
-        virtual void OnLeftButtonDown(int mx, int my);
+        virtual void left_button_down(int mx, int my);
 
-        virtual void OnLeftButtonUp(int mx, int my);
+        virtual void left_button_up(int mx, int my);
 
-        virtual void OnRightButtonDown(int mx, int my);
+        virtual void right_button_down(int mx, int my);
 
-        virtual void OnRightButtonUp(int mx, int my);
+        virtual void right_button_up(int mx, int my);
 
-        virtual void OnMiddleButtonDown(int mx, int my);
+        virtual void middle_button_down(int mx, int my);
 
-        virtual void OnMiddleButtonUp(int mx, int my);
+        virtual void middle_button_up(int mx, int my);
 
-        virtual void OnMinimize();
+        virtual void minimize();
 
-        virtual void OnRestore();
+        virtual void restore();
 
-        virtual void OnResize(int w,int h);
+        virtual void resize(int w, int h);
 
-        virtual void OnExpose();
+        virtual void expose();
 
-        virtual void OnExit();
+        virtual void exit();
 };
 
 #endif

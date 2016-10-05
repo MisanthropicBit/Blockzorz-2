@@ -1,363 +1,294 @@
-#include "Menu.h"
-#include "MenuItem.h"
-#include "Graphics.h"
-#include "Screen.h"
-#include "AudioManager.h"
+#include "menu.hpp"
+#include "menu_item.hpp"
+#include "graphics.hpp"
+#include "screen.hpp"
+#include "audio_manager.hpp"
 
-//============================================================================================================================
-
-Menu::Menu(const string& title, const string& fontfile, int fontsize, const string& imagefile, int x, int y)
-{
-	Load(title, fontfile, fontsize, imagefile, x, y);
-	visible = false;
-	buttongap = 5;
-	alpha = 0.f;
-	selected = 0;
-	soundname = "";
+menu::menu(const std::string& title,
+           const std::string& font_file,
+           int font_size,
+           const std::string& image_file,
+           int x,
+           int y) {
+    load(title, font_file, font_size, image_file, x, y);
+    visible    = false;
+    button_gap = 5;
+    alpha      = 0.f;
+    selected   = 0;
+    sound_name = "";
 }
 
-//============================================================================================================================
+menu::~menu() {
+    for (int i = 0; i < menu_items.size(); ++i) {
+        delete menu_items[i];
+    }
 
-Menu::~Menu()
-{
-	for(int i = 0; i < MenuItems.size(); i++)
-	{
-		delete MenuItems[i];
-	}
-
-	MenuItems.clear();
+    menu_items.clear();
 }
 
-//============================================================================================================================
+void menu::load(const std::string& title,
+                const std::string& fontfile,
+                int font_size,
+                const std::string& image_file,
+                int x,
+                int y) {
+    this->x = x;
+    this->y = y;
 
-void Menu::Load(const string& title, const string& fontfile, int fontsize, const string& imagefile, int x, int y)
-{
-	this->x = x;
-	this->y = y;
+    if (image) {
+        SDL_FreeSurface(image);
+        image = nullptr;
+    }
 
-	if(image)
-	{
-		SDL_FreeSurface(image);
-		image = NULL;
-	}
-
-	image = Graphics::LoadImage(imagefile);
-	font.SetFont(fontfile, fontsize);
-	MenuItems.clear();
+    image = graphics::load_image(image_file);
+    font.set_font(font_file, font_size);
+    menu_items.clear();
 }
 
-//============================================================================================================================
+void menu::handle_event(SDL_Event& event) {
+    if (!visible() || menu_items.empty()) {
+        // Menu not visible or no items to evaluate, so no need to handle events
+        return;
+    }
 
-void Menu::HandleEvent(SDL_Event& event)
-{
-	if(!IsVisible() || MenuItems.empty()) {return;} // Menu not visible or no items to evaluate, so no need to handle events
+    if (event.type == SDL_KEYDOWN) {
+        // Handle keyboard
+        switch (event.key.keysym.sym) {
+            case SDLK_UP:
+                menu_items[selected]->deselect();
+            
+                if (selected == 0) {
+                    selected = menu_items.size() - 1;
+                } else {
+                    selected -= 1;
+                }
 
-	if(event.type == SDL_KEYDOWN) // Handle keyboard
-	{
-		switch(event.key.keysym.sym)
-		{
-			case SDLK_UP:
-				MenuItems[selected]->Deselect();
-			
-				if(selected == 0)
-				{
-					selected = MenuItems.size() - 1;
-				}
-				else
-				{
-					selected -= 1;
-				}
+                if (!sound_name.empty()) {
+                    audio_manager::get()->play_sound(sound_name, 0);
+                }
 
-				if(!soundname.empty()) {AudioManager::GetManager()->PlaySound(soundname, 0);}
-				MenuItems[selected]->Select();
+                menu_items[selected]->select();
+                break;
 
-				break;
+            case SDLK_DOWN:
+                menu_items[selected]->deselect();
+            
+                if (selected == menu_items.size() - 1) {
+                    selected = 0;
+                } else {
+                    selected += 1;
+                }
 
-			case SDLK_DOWN:
-				MenuItems[selected]->Deselect();
-			
-				if(selected == MenuItems.size() - 1)
-				{
-					selected = 0;
-				}
-				else
-				{
-					selected += 1;
-				}
+                if (!sound_name.empty()) {
+                    audio_manager::get()->play_sound(sound_name, 0);
+                }
 
-				if(!soundname.empty()) {AudioManager::GetManager()->PlaySound(soundname, 0);}
-				MenuItems[selected]->Select();
-				break;
+                menu_items[selected]->select();
+                break;
 
-			case SDLK_RIGHT:
-				if(MenuItems[selected]->OnRightKey()) {AudioManager::GetManager()->PlaySound(soundname, 0);}
-				break;
+            case SDLK_RIGHT:
+                if (menu_items[selected]->right_key()) {
+                    audio_manager::get()->play_sound(sound_name, 0);
+                }
+                break;
 
-			case SDLK_LEFT:
-				if(MenuItems[selected]->OnLeftKey()) {AudioManager::GetManager()->PlaySound(soundname, 0);}
-				break;
+            case SDLK_LEFT:
+                if (menu_items[selected]->left_key()) {
+                    audio_manager::get()->play_sound(sound_name, 0);
+                }
+                break;
 
-			case SDLK_RETURN:
-				MenuItems[selected]->OnEnter();
-				break;
+            case SDLK_RETURN:
+                menu_items[selected]->enter();
+                break;
 
-			default:
-				break;
-		}
-	}
-	else if(event.type == SDL_KEYUP)
-	{
-		MenuItems[selected]->Clicked(false);
-	}
-	else if(event.type == SDL_MOUSEMOTION) // Handle mouse movement
-	{
-		int ShiftHover = -1;
+            default:
+                break;
+        }
+    } else if (event.type == SDL_KEYUP) {
+        menu_items[selected]->clicked(false);
+    } else if (event.type == SDL_MOUSEMOTION) {
+        // Handle mouse movement
+        int shift_hover = -1;
 
-		for(int i = 0; i < MenuItems.size(); i++)
-		{
-			if(MenuItems[i]->OnMouseMotion(event.motion.x, event.motion.y))
-			{
-				ShiftHover = i;
-			}
-		}
+        for (int i = 0; i < menu_items.size(); i++) {
+            if (menu_items[i]->mouse_motion(event.motion.x, event.motion.y)) {
+                shift_hover = i;
+            }
+        }
 
-		if(ShiftHover >= 0)
-		{
-			if(!soundname.empty() && (ShiftHover != selected))
-			{
-				AudioManager::GetManager()->PlaySound(soundname, 0);
+        if (shift_hover >= 0) {
+            if (!sound_name.empty() && shift_hover != selected) {
+                audio_manager::get()->play_sound(sound_name, 0);
+            }
 
-			}
-			MenuItems[selected]->Deselect();
-			selected = ShiftHover;
-			MenuItems[selected]->Select();
-		}
-	}
-	else if(event.type == SDL_MOUSEBUTTONDOWN) // Handle mouse button
-	{
-		for(int i = 0; i < MenuItems.size(); i++)
-		{
-			MenuItems[i]->OnMouseButtonDown(event.button.x, event.button.y);
-		}
-	}
-	else if(event.type == SDL_MOUSEBUTTONUP)
-	{
-		for(int i = 0; i < MenuItems.size(); i++)
-		{
-			MenuItems[i]->OnMouseButtonUp();
-		}
-	}
+            menu_items[selected]->deselect();
+            selected = shift_hover;
+            menu_items[selected]->select();
+        }
+    } else if (event.type == SDL_MOUSEBUTTONDOWN) {
+        // Handle mouse button
+        for (int i = 0; i < menu_items.size(); ++i) {
+            menu_items[i]->mouse_button_down(event.button.x, event.button.y);
+        }
+    } else if (event.type == SDL_MOUSEBUTTONUP) {
+        for (int i = 0; i < MenuItems.size(); ++i) {
+            menu_items[i]->mouse_button_up();
+        }
+    }
 }
 
-//============================================================================================================================
+void menu::draw() {
+    if (!visible()) {
+        return;
+    }
 
-void Menu::Draw()
-{
-	if(!IsVisible()) {return;}
+    graphics::draw_image(image, x - w/2, y - (size() * button_gap) / 2);
 
-	Graphics::DrawImage(image, x - w/2, y - (GetNoItems() * buttongap) / 2);
-
-	for(int i = 0; i < MenuItems.size(); i++)
-	{
-		MenuItems[i]->Draw();
-	}
+    for(int i = 0; i < menu_items.size(); ++i) {
+        menu_items[i]->draw();
+    }
 }
 
-//============================================================================================================================
+void menu::add_menu_item(menu_item* item) {
+    item->set_menu(this);
+    menu_items.push_back(item);
 
-void Menu::AddMenuItem(MenuItem* item)
-{
-	item->SetMenu(this);
-	MenuItems.push_back(item);
-
-	if(MenuItems.size() == 1) // If this is the first button, select it.
-		button->Select();
+    if (menu_items.size() == 1) {
+        // If this is the first button, select it.
+        button->Select();
+    }
 }
 
-//============================================================================================================================
+void menu::add_button(const std::string& title, const color& normal_color, const color& selected_color) {
+    button* button  = new button(title, normal_color, selected_color, text.string_width(title), text.string_height(title));
+    button->pos().x = x + w/2 - button->width() / 2;
+    button->pos().y = y + menu_items.size() * (text.size() + button_gap);
+    button->set_menu(this);
 
-void Menu::AddButton(const string& title, Color& normal, Color& selected)
-{
-	Button* button = new Button(title, normal, selected, text.GetStringWidth(title), text.GetStringHeight(title));
-	button->GetPos().x = x + w/2 - button->GetW() / 2;
-	button->GetPos().y = y + MenuItems.size() * (text.GetSize() + buttongap);
-	button->SetMenu(this);
+    menu_items.push_back(button);
 
-	MenuItems.push_back(button);
-
-	if(MenuItems.size() == 1) // If this is the first button, select it.
-		button->Select();
+    if (menu_items.size() == 1) {
+        // If this is the first button, select it. 
+        button->select();
+    }
 }
 
-//============================================================================================================================
+void menu::add_selection(const std::string& default, const std::vector<std::string>& choices, const color& normal_color, const color& selected_color) {
+    selection* selection = new selection(default, choices, normal_color, selected_color);
+    selection->pos().x   = x + w/2 - text.string_width(default) / 2;
+    selection->pos().y   = y + menu_items.size() * (text.size() + button_gap);
+    selection->set_menu(this);
 
-void Menu::AddSelection(const string& default, vector<string> choices, Color& normal, Color& selected)
-{
-	Selection* selection = new Selection(default, choices, normal, selected);
-	selection->GetPos().x = x + w/2 - text.GetStringWidth(default) / 2;
-	selection->GetPos().y = y + MenuItems.size() * (text.GetSize() + buttongap);
-	selection->SetMenu(this);
+    menu_items.push_back(selection);
 
-	MenuItems.push_back(selection);
-
-	if(MenuItems.size() == 1) // If this is the first button, select it.
-		selection->Select();
+    if(MenuItems.size() == 1) {
+        // If this is the first button, select it.
+        selection->select();
+    }
 }
 
-//============================================================================================================================
+void menu::center() {
+    x = screen::get().width()/2 - w/2;
+    y = Screen::get().height()/2 - h/2;
 
-void Menu::Center()
-{
-	x = Screen::GetScreen().GetWidth()/2 - w/2;
-	y = Screen::GetScreen().GetHeight()/2 - h/2;
-
-	// Also center for menu's children
-	for(int i = 0; i < MenuItems.size(); i++)
-	{
-		MenuItems[i]->GetPos().x = x + w/2 - MenuItems[i]->GetW()/2;
-		MenuItems[i]->GetPos().y = y + i * (text.GetSize() + buttongap);
-	}
+    // Also center for menu's children
+    for (int i = 0; i < MenuItems.size(); ++i) {
+        menu_items[i]->pos().x = x + w/2 - menu_items[i]->width()/2;
+        menu_items[i]->pos().y = y + i * (text.size() + buttongap);
+    }
 }
 
-//============================================================================================================================
-
-// Sets the gap between buttons in pixels
-void Menu::SetButtonGap(int buttongap)
-{
-	if(buttongap >= 0)
-		this->buttongap = buttongap;
+void menu::set_button_gap(int button_gap) {
+    if (button_gap >= 0) {
+        this->button_gap = button_gap;
+    }
 }
 
-//============================================================================================================================
-
-// Sets the transparency for buttons that are not selected in the menu
-void Menu::SetAlphaUnSelected(float alpha)
-{
-	if(alpha >= 0.f && alpha <= 1.f)
-		this->alpha = alpha;
+void menu::set_alpha_unselected(float alpha) {
+    if (alpha >= 0.f && alpha <= 1.f) {
+        this->alpha = alpha;
+    }
 }
 
-//============================================================================================================================
-
-// Sets the sound that is heard when buttons become selected
-void Menu::SetSound(const string& soundname)
-{
-	this->soundname = soundname;
+void menu::set_select_sound(const std::string& sound_name) {
+    this->sound_name = sound_name;
 }
 
-//============================================================================================================================
+void menu::show() {
+    visible = true;
 
-void Menu::Show()
-{
-	visible = true;
+    // Reset all items
+    if (!menu_items.empty()) {
+        for (int i = 0; i < menu_items.size(); ++i) {
+            menu_items[i]->deselect();
+            menu_items[i]->clicked(false);
+        }
 
-	// Reset all items
-	if(!MenuItems.empty())
-	{
-		for(int i = 0; i < MenuItems.size(); i++)
-		{
-			MenuItems[i]->Deselect();
-			MenuItems[i]->Clicked(false);
-		}
-
-		selected = 0;
-		MenuItems[0]->Select();
-	}
+        selected = 0;
+        menu_items[0]->select();
+    }
 }
 
-//============================================================================================================================
-
-void Menu::Hide()
-{
-	visible = false;
+void menu::hide() {
+    visible = false;
 }
 
-//============================================================================================================================
-
-bool Menu::IsVisible()
-{
-	return visible;
+bool menu::visible() {
+    return visible;
 }
-
-//============================================================================================================================
 
 // Returns the item (1, 2, 3 etc.) that was clicked, if any
-int Menu::IsClicked()
-{
-	if(MenuItems.empty() || !IsVisible()) {return 0;}
+int menu::clicked() {
+    if (menu_items.empty() || !visible()) {
+        return 0;
+    }
 
-	for(int i = 0; i < MenuItems.size(); i++)
-	{
-		if(MenuItems[i]->IsClicked())
-			return (i + 1);
-	}
+    for (int i = 0; i < MenuItems.size(); ++i) {
+        if (menu_items[i]->clicked()) {
+            return i + 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
-//============================================================================================================================
+std::string menu::item_title(int id) {
+    if (id < 1 || id > menu_items.size()) {
+        return "";
+    }
 
-string Menu::GetItemTitle(int id)
-{
-	if(id < 1 || id > MenuItems.size()) {return "";}
-
-	return MenuItems[id - 1]->GetTitle();
+    return menu_items[id - 1]->title();
 }
 
-//============================================================================================================================
-
-Font* Menu::GetFont()
-{
-	return &font;
+font* menu::font() {
+    return &_font;
 }
 
-//============================================================================================================================
-
-int Menu::GetX() const
-{
-	return x;
+int menu::x() const {
+    return x;
 }
 
-//============================================================================================================================
-
-int Menu::GetY() const
-{
-	return y;
+int menu::y() const {
+    return y;
 }
 
-//============================================================================================================================
-
-int Menu::GetWidth() const
-{
-	return w;
+int menu::width() const {
+    return w;
 }
 
-//============================================================================================================================
-
-int Menu::GetHeight() const
-{
-	return h;
+int menu::height() const {
+    return h;
 }
 
-//============================================================================================================================
-
-float Menu::GetAlpha() const
-{
-	return alpha;
+float menu::alpha() const {
+    return alpha;
 }
 
-//============================================================================================================================
-
-int Menu::GetButtonGap() const
-{
-	return buttongap;
+int menu::button_gap() const {
+    return buttongap;
 }
 
-//============================================================================================================================
-
-int Menu::GetNoItems() const
-{
-	return MenuItems.size();
+int menu::size() const {
+    return menu_items.size();
 }
-
-//===========================================================================================================================

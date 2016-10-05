@@ -1,32 +1,29 @@
-#ifndef PLAYER_H
-#define PLAYER_H
+#ifndef BLOCKZORZ2_PLAYER_HPP
+#define BLOCKZORZ2_PLAYER_HPP
 
-#include "SDL.h"
-
+#include <SDL.h>
 #include <string>
-using namespace std;
 
-class Player
-{
+class player {
 	public:
-		Player();
-		Player(const string& file, int row, int col);
-		~Player();
+		player();
+		player(const std::string& file, int row, int col);
+		~player();
 
-		void Load(const string& file, int row, int col);
-		void Update(int dt);
-		void Draw();
+		void load(const std::string& file, int row, int col);
+		void update(int dt);
+		void draw();
 
-		void SetTransparency(float alpha);
-		int& GetRow();
-		int& GetColumn();
+		void set_transparency(float alpha);
+		int row();
+		int column();
 
-		void StartMovingUp();
-		void StartMovingDown();
-		void StartMovingLeft();
-		void StartMovingRight();
+		void move_up();
+		void move_down();
+		void move_left();
+		void move_right();
 
-		void StopMoving();
+		void stop_moving();
 
 	private:
 		SDL_Surface* image;

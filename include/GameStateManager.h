@@ -1,41 +1,38 @@
-#ifndef GAME_STATE_MANAGER_H
-#define GAME_STATE_MANAGER_H
+#ifndef BLOCKZORZ2_GAME_STATE_MANAGER_HPP
+#define BLOCKZORZ2_GAME_STATE_MANAGER_HPP
 
-#include "SDL.h"
-#include "GameState.h"
-#include "GameStateIntro.h"
-
+#include <SDL.h>
+#include "game_state.hpp"
+#include "game_state_intro.hpp"
 #include <vector>
-using namespace std;
 
-class GameStateManager
-{
+class game_state_manager {
 	public:
-		~GameStateManager();
+		~game_state_manager();
 
-		static GameStateManager& GetManager();
+		static game_state_manager& get();
 
-		void ChangeState(GameState* gs);
-		void PushState(GameState* gs);
-		void PopState();
-		void Quit(); // Tells the 'Game' to quit
+		void change_state(GameState* gs);
+		void push_state(GameState* gs);
+		void pop_state();
+		void quit();
 
-		void PassEvent(SDL_Event& event);
-		void UpdateStates(int dt);
-		void DrawStates();
-		void CleanUpStates();
+		void pass_event(SDL_Event& event);
+		void update_states(int dt);
+		void draw_states();
+		void cleanup_states();
 
-		GameState* GetCurrentState() const;
-		int GetNoStates() const;
-		bool IsRunning() const;
+		game_state* current_state() const;
+		int size() const;
+		bool running() const;
 
 	private:
-		GameStateManager(); // hidden constructor
+		game_state_manager();
 
-		static GameStateManager Gsm;
+		static game_state_manager manager;
 
-		vector<GameState*> States;
-		bool Running;
+        std::vector<game_state*> states;
+		bool _running;
 };
 
 #endif

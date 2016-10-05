@@ -1,112 +1,76 @@
-#include "Animation.h"
-#include "SDL.h"
+#include <SDL.h>
+#include "animation.hpp"
 
-//=========================================================================================================================
-
-Animation::Animation()
-{
+animation::animation() {
     frame     = 0;
     frameinc  = 1;
     framerate = 750; // Default frame rate is 750 miliseconds
     maxframes = 0;
 	timeleft  = 750;
-
     oscillate = false;
 	animate   = true;
 }
 
-//=========================================================================================================================
-
-void Animation::Animate(int dt)
-{
-	if(!animate)
+void animation::animate(int dt) {
+	if (!animate) {
 		return;
+    }
 
 	timeleft -= dt;
 	
-	if(timeleft <= 0)
-	{
+	if (timeleft <= 0) {
 		timeleft = framerate;
-
 		frame += frameinc;
 
-		if(oscillate)
-		{
-			if(frame >= maxframes - 1 || frame <= 0)
+		if (oscillate) {
+			if (frame >= maxframes - 1 || frame <= 0) {
 				frameinc *= -1;
-		}
-		else
-		{
-			if(frame >= maxframes)
+            }
+		} else {
+			if (frame >= maxframes) {
 				frame = 0;
+            }
 		}
 	}
 }
 
-//=========================================================================================================================
-
-void Animation::Play()
-{
+void animation::play() {
 	animate = true;
 }
 
-//=========================================================================================================================
-
-void Animation::Stop()
-{
+void animation::stop() {
 	animate = false;
 }
 
-//=========================================================================================================================
-
-void Animation::SetFrameRate(int framerate)
-{
-	if(framerate > 0)
-		this->framerate = framerate;
+void animation::set_framerate(int framerate) {
+	if(framerate > 0) {
+        this->framerate = framerate;
+    }
 }
 
-//=========================================================================================================================
-
-void Animation::SetCurrentFrame(int frame)
-{
+void animation::set_frame(int frame) {
     if(frame >= 0 && frame < maxframes)
 		this->frame = frame;
 }
 
-//=========================================================================================================================
-
-void Animation::SetMaxFrames(int maxframes)
-{
-	if(maxframes > 0)
+void animation::set_max_frames(int maxframes) {
+	if(maxframes > 0) {
 		this->maxframes = maxframes;
+    }
 }
 
-//=========================================================================================================================
-
-void Animation::Oscillate()
-{
+void animation::oscillate() {
 	oscillate = true;
 }
 
-//=========================================================================================================================
-
-void Animation::DontOscillate()
-{
+void animation::stop_oscillate() {
 	oscillate = false;
 }
 
-//=========================================================================================================================
-
-int Animation::GetCurrentFrame() const
-{
+int animation::current_frame() const {
 	return frame;
 }
 
-//=========================================================================================================================
-
-bool Animation::IsAnimating() const
-{
+bool animation::is_animating() const {
 	return animate;
 }
-
-//=========================================================================================================================

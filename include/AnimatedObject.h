@@ -1,19 +1,18 @@
-#ifndef ANIMATED_OBJECT
-#define ANIMATED_OBJECT
+#ifndef BLOCKZORZ2_ANIMATED_OBJECT_HPP
+#define BLOCKZORZ2_ANIMATED_OBJECT_HPP
 
-#include "Object.h"
-#include "Animation.h"
+#include "object.hpp"
+#include "animation.hpp"
 
-class AnimatedObject : public Object
-{
+class animated_object : public object {
 	public:
-		AnimatedObject();
-		~AnimatedObject();
+		animated_object();
+		~animated_object();
 
-		virtual void Draw();
-		virtual void Update(int dt);
+		virtual void draw();
+		virtual void update(int dt);
 
-		Animation animation;
+		animation anim;
 };
 
 #endif

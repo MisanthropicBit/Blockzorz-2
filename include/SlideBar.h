@@ -1,35 +1,32 @@
-#ifndef SLIDE_BAR_H
-#define SLIDE_BAR_H
-
-#include "Event.h"
-#include "Vector.h"
+#ifndef BLOCKZORZ2_SLIDE_BAR_HPP
+#define BLOCKZORZ2_SLIDE_BAR_HPP
 
 #include <string>
-using namespace std;
+#include "event.h"
+#include "vector.h"
 
-class SlideBar : public Event
-{
+class slide_bar : public event {
 	public:
-		SlideBar();
-		SlideBar(const string& imagefile, int x, int y, int min, int max);
-		~SlideBar();
+		slide_bar();
+		slide_bar(const std::string& image_file, int x, int y, int min, int max);
+		~slide_bar();
 
-		bool Load(const string& imagefile, int x, int y, int min, int max);
-		void OnEvent(SDL_Event& event);
-		void Draw();
+		bool load(const std::string& imagefile, int x, int y, int min, int max);
+		void on_event(SDL_Event& event);
+		void draw();
 
-		void SetValue(int value);
-		void SetMin(int min);
-		void SetMax(int max);
-		int GetValue() const;
+		void set_value(int value);
+		void set_min(int min);
+		void set_max(int max);
+		int get_value() const;
 
-		bool HasMouseHover(int mx, int my);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
-		void OnLeftButtonUp(int mx, int my);
+		bool has_mouse_hover(int mx, int my);
+		void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
+		void left_button_down(int mx, int my);
+		void left_button_up(int mx, int my);
 
 	private:
-		Vector position;
+		vector position;
 		int ix; // Image x-coordinate
 		int relx;
 		int value;

@@ -1,161 +1,113 @@
-#include "OptionButton.h"
-#include "AudioManager.h"
-#include "Graphics.h"
+#include "option_button.hpp"
+#include "audio_manager.hpp"
+#include "graphics.hpp"
 
-//=========================================================================================================================
-
-OptionButton::OptionButton()
-{
-	current = 0;
-	alpha = 0.f;
-	color = Color::Black;
-	selections.clear();
+option_button::option_button() {
+    current = 0;
+    alpha   = 0.f;
+    color   = color::black;
+    selections.clear();
 }
 
-//=========================================================================================================================
-
-OptionButton::~OptionButton()
-{
-	font.Close();
-	selections.clear();
+option_button::~option_button() {
+    font.close();
+    selections.clear();
 }
 
-//=========================================================================================================================
+bool option_button::load(const std::string& font_file,
+                         const color& color,
+                         int size,
+                         int x,
+                         int y) {
+    this->color = color;
+    font.set_font_file(font_file, size);
 
-bool OptionButton::Load(const string& fontfile, Color& color, int size, int x, int y)
-{
-	this->color = color;
-	font.SetFontFile(fontfile, size);
+    rect.x = x;
+    rect.y = y;
+    rect.w = 0;
+    rect.h = font.height();
 
-	rect.x = x;
-	rect.y = y;
-	rect.w = 0;
-	rect.h = font.GetHeight();
-
-	return true;
+    return true;
 }
 
-//=========================================================================================================================
-
-void OptionButton::Draw()
-{
-	if(current >= 0 && current <= selections.size())
-		font.DrawTextTransparent(selections[current], color, alpha, rect.x, rect.y);
+void option_button::draw() {
+    if (current >= 0 && current <= selections.size()) {
+        font.draw_text_transparent(selections[current], color, alpha, rect.x, rect.y);
+    }
 }
 
-//=========================================================================================================================
-
-void OptionButton::AddSelection(const string& selection)
-{
-	if(!selection.empty())
-	{
-		selections.push_back(selection);
-		rect.w = font.GetStringWidth(selection);
-	}
+void option_button::add_selection(const std::string& selection) {
+    if (!selection.empty()) {
+        selections.push_back(selection);
+        rect.w = font.string_width(selection);
+    }
 }
 
-//=========================================================================================================================
+bool option_button::set_selection(const std::string& selection) {
+    for (int i = 0; i < selections.size(); i++) {
+        if (selections[i] == selection) {
+            current = i;
+            rect.w  = font.string_width(selections[current]);
+            return true;
+        }
+    }
 
-bool OptionButton::SetSelection(const string& selection)
-{
-	for(int i = 0; i < selections.size(); i++)
-	{
-		if(selections[i] == selection)
-		{
-			current = i;
-			rect.w = font.GetStringWidth(selections[current]);
-			return true;
-		}
-	}
-
-	return false;
+    return false;
 }
 
-//=========================================================================================================================
+std::string option_button::selection() {
+    if (!selections.empty() && current >= 0 && current <= selections.size()) {
+        return selections[current];
+    }
 
-string OptionButton::GetSelection()
-{
-	if(!selections.empty() && current >= 0 && current <= selections.size())
-		return selections[current];
-
-	return "";
+    return "";
 }
 
-//=========================================================================================================================
-
-void OptionButton::Select()
-{
-	selected = true;
+void option_button::select() {
+    selected = true;
 }
 
-//=========================================================================================================================
-
-void OptionButton::Deselect()
-{
-	selected = false;
+void option_button::deselect() {
+    selected = false;
 }
 
-//=========================================================================================================================
-
-bool OptionButton::IsSelected() const
-{
-	return selected;
+bool option_button::is_selected() const {
+    return selected;
 }
 
-//=========================================================================================================================
-
-void OptionButton::SetAlpha(float alpha)
-{
-	if(alpha >= 0.f && alpha <= 1.f)
-		this->alpha = alpha;
+void option_button::set_alpha(float alpha) {
+    if (alpha >= 0.f && alpha <= 1.f) {
+        this->alpha = alpha;
+    }
 }
 
-//=========================================================================================================================
-
-bool OptionButton::HasMouseHover(int mx, int my)
-{
-	if(mx >= rect.x && mx <= rect.x + rect.w && my >= rect.y && my <= rect.y + rect.h)
-		return true;
-
-	return false;
+bool option_button::has_mouse_hover(int mx, int my) {
+    return mx >= rect.x && mx <= rect.x + rect.w && my >= rect.y && my <= rect.y + rect.h;
 }
 
-//=========================================================================================================================
+void option_button::left_button_down(int mx, int my) {
+    if (has_mouse_hover(mx, my)) {
+        ++current;
 
-void OptionButton::OnLeftButtonDown(int mx, int my)
-{
-	if(HasMouseHover(mx, my))
-	{
-		current++;
+        if (current >= selections.size()) {
+            current = 0;
+        }
 
-		if(current >= selections.size())
-			current = 0;
-
-		rect.w = font.GetStringWidth(selections[current]);
-	}
+        rect.w = font.string_width(selections[current]);
+    }
 }
 
-//=========================================================================================================================
-
-void OptionButton::OnMouseMove(int mx, int my)
-{
-	if(HasMouseHover(mx, my))
-	{
-		if(!IsSelected())
-		{
-			Select();
-			SetAlpha(0.f);
-			AudioManager::GetManager()->PlaySound("Click", 0);
-		}
-	}
-	else
-	{
-		if(IsSelected())
-		{
-			Deselect();
-			SetAlpha(0.8f);
-		}
-	}
+void option_button::mouse_move(int mx, int my) {
+    if (has_mouse_hover(mx, my)) {
+        if (!is_selected()) {
+            select();
+            set_alpha(0.f);
+            audio_manager::get()->play_sound("click", 0);
+        }
+    } else {
+        if (is_selected()) {
+            deselect();
+            set_alpha(0.8f);
+        }
+    }
 }
-
-//=========================================================================================================================

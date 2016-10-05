@@ -1,35 +1,32 @@
-#ifndef OBJECT_H
-#define OBJECT_H
+#ifndef BLOCKZORZ2_OBJECT_HPP
+#define BLOCKZORZ2_OBJECT_HPP
 
-#include "SDL.h"
-#include "Vector.h"
-#include "Color.h"
-
+#include <SDL.h>
 #include <string>
-using namespace std;
+#include "vector.hpp"
+#include "color.hpp"
 
-class Object
-{
+class object {
 	public:
-		Object();
-		Object(const string& file, int w, int h);
-		Object(const string& file, Color& colorkey, int w, int h);
-		~Object();
+		object();
+		object(const std::string& file, int w, int h);
+		object(const std::string& file, const color& colorkey, int w, int h);
+		~object();
 
-		void Load(const string& file, int w, int h);
-		void Load(const string& file, Color& colorkey, int w, int h);
-		virtual void Draw();
-		virtual void Update(int dt);
+		void load(const std::string& file, int w, int h);
+		void load(const std::string& file, const color& colorkey, int w, int h);
+		virtual void draw();
+		virtual void update(int dt);
 
-		void SetImage(SDL_Surface* newimage);
-		SDL_Surface* GetImage() const;
-		bool IsDead() const;
+		void set_image(SDL_Surface* image);
+		SDL_Surface* image() const;
+		bool dead() const;
 
 	public:
 		int w, h;
-		Vector position;
-		Vector speed;
-		Vector acceleration;
+		vector position;
+		vector speed;
+		vector acceleration;
 
 	protected:
 		SDL_Surface* image;

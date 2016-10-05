@@ -1,133 +1,86 @@
-#include "Timer.h"
-#include "Font.h"
+#include "timer.hpp"
+#include "font.hpp"
 
-//=========================================================================================================================
-
-Timer::Timer()
-{
-	started = false;
-	paused = false;
-
-	startTick = 0;
-	pausedTick = 0;
-	lastTick = 0;
-	fpsTick = 0;
-	fps = 0;
-	frames = 0;
+timer::timer() {
+    started    = false;
+    paused     = false;
+    startTick  = 0;
+    pausedTick = 0;
+    lastTick   = 0;
+    fpsTick    = 0;
+    fps        = 0;
+    frames     = 0;
 }
 
-//============================================================================================================================
-
-void Timer::Start()
-{
-	started = true;
-	paused = false;
-	startTick = SDL_GetTicks();//Timer::GetElapsedTime() - pausedTick;
+void timer::start() {
+    started    = true;
+    paused     = false;
+    start_tick = SDL_GetTicks();//Timer::GetElapsedTime() - pausedTick;
 }
 
-//============================================================================================================================
-
-void Timer::Pause()
-{
-	if(!paused)
-	{
-		started = false;
-		paused = true;
-		pausedTick = Timer::GetElapsedTime() - startTick;
-	}
+void timer::pause() {
+    if (!paused) {
+        started     = false;
+        paused      = true;
+        paused_tick = timer::elapsed_time() - start_tick;
+    }
 }
 
-//============================================================================================================================
-
-bool Timer::IsPaused() const
-{
-	return paused;
+bool timer::is_paused() const {
+    return paused;
 }
-
-//============================================================================================================================
 
 // Gets the current time elaspsed since last pause
-int Timer::GetTime() const
-{	
-	if(started)
-	{
-		return Timer::GetElapsedTime() - startTick;
-	}
-	else
-	{
-		return pausedTick;
-	}
+int timer::time() const {   
+    if (started) {
+        return timer::elapsed_time() - start_tick;
+    } else {
+        return paused_tick;
+    }
 
-	return 0;
+    return 0;
 }
-
-//============================================================================================================================
 
 // By calling this function in the main loop, we can calculate the fps when one second has passed.
-void Timer::Update()
-{
-	if(SDL_GetTicks() >= (fpsTick + 1000))
-	{
-		fpsTick = SDL_GetTicks();
-		fps = frames;
-		frames = 0;
-	}
+void timer::update() {
+    if (SDL_GetTicks() >= (fps_tick + 1000)) {
+        fps_tick = SDL_GetTicks();
+        fps      = frames;
+        frames   = 0;
+    }
 
-	frames++;
+    ++frames;
 }
 
-//============================================================================================================================
-
-string Timer::GetPrettyPrintTime()
-{
-	if((GetTime() / 1000) % 60 < 10)
-	{
-		return (Font::Int2String(GetTime() / 1000 / 60) + ":0" + Font::Int2String((GetTime() / 1000) % 60));
-	}
-	else
-	{
-		return (Font::Int2String(GetTime() / 1000 / 60) + ":" + Font::Int2String((GetTime() / 1000) % 60));
-	}
+string timer::get_pretty_print_time() {
+    if ((time() / 1000) % 60 < 10) {
+        return (font::int2string(time() / 1000 / 60) + ":0" + font::int2string((time() / 1000) % 60));
+    } else {
+        return (font::int2string(time() / 1000 / 60) + ":" + font::int2string((time() / 1000) % 60));
+    }
 }
-
-//============================================================================================================================
 
 // This function is static since it makes more sense. Elapsed time is not an individual property of each timer.
-int Timer::GetElapsedTime()
-{
-	return SDL_GetTicks();
+int timer::elapsed_time() {
+    return SDL_GetTicks();
 }
 
-//============================================================================================================================
-
-int Timer::GetElapsedMinutes()
-{
-	return (GetElapsedTime() / 1000) / 60;
+int timer::elapsed_minutes() {
+    return (elapsed_time() / 1000) / 60;
 }
 
-//============================================================================================================================
-
-int Timer::GetElapsedSeconds()
-{
-	return (GetElapsedTime() / 1000) % 60;
+int timer::elapsed_seconds() {
+    return (elapsed_time() / 1000) % 60;
 }
-
-//============================================================================================================================
 
 // Gets the time elapsed since this function was called
-int Timer::GetDeltaTime()
-{
-	int deltatime = SDL_GetTicks() - lastTick; // miliseconds
-	lastTick = SDL_GetTicks();
+int timer::delta_time() {
+    int delta_time = SDL_GetTicks() - last_tick; // miliseconds
+    last_tick      = SDL_GetTicks();
 
-	return deltatime;
+    return delta_time;
 }
 
-//============================================================================================================================
-
-int Timer::GetFPS() const
-{
-	return fps;
+int timer::fps() const {
+    return _fps;
 }
-
-//=========================================================================================================================

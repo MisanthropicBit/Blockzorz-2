@@ -1,54 +1,35 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef BLOCKZORZ2_GAME_HPP
+#define BLOCKZORZ2_GAME_HPP
 
-#include "SDL.h"
-#include "GameState.h"
-#include "GameStateIntro.h"
-#include "Timer.h"
-#include "Font.h"
+#include <SDL.h>
+#include "game_state.hpp"
+#include "game_state_intro.hpp"
+#include "timer.hpp"
+#include "font.hpp"
 #include <string>
-using namespace std;
 
-//=========================================================================================================================
+const std::string VERSION = "v1.2b";
+const float DESIRED_FPS   = 60.f;
 
-const string VERSION = "v1.2b";
-const float DESIRED_FPS = 60.f;
-
-//=========================================================================================================================
-
-struct Settings
-{
-	int mvolume;
-	int svolume;
-	bool fullscreen;
-	bool CFmodeunlocked;
-};
-
-//=========================================================================================================================
-
-class Game
-{
+class game {
 	public:
-		Game();
-		~Game();
+		game();
+		~game();
 
-		int Run();
-		bool Initialize();
-		void HandleEvent();
-		void Think();
-		void Draw();
-		void CleanUp();
+		int run();
+		bool initialize();
+		void handle_event();
+		void update();
+		void draw();
+		void clean_up();
 
 		SDL_Event event;
-		Timer gametimer;
-		Font debugtext;
+		timer game_timer;
+		font debug_text;
 
-		static Settings gamesettings;
+		static settings game_settings;
 
 	private:
-		
 };
-
-//=========================================================================================================================
 
 #endif

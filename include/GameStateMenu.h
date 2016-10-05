@@ -1,38 +1,36 @@
-#ifndef GAME_STATE_MENU_H
-#define GAME_STATE_MENU_H
+#ifndef BLOCKZORZ2_GAME_STATE_MENU_HPP
+#define BLOCKZORZ2_GAME_STATE_MENU_HPP
 
-#include "GameState.h"
-#include "Button.h"
+#include "game_state.hpp"
+#include "button.hpp"
 
-class GameStateMenu : public GameState
-{
+class game_state_menu : public game_state {
 	public:
-		GameStateMenu();
+		game_state_menu();
 
-		bool Load();
-		void OnEvent(SDL_Event& event);
-		void Update(int dt);
-		void Draw();
-		void UnLoad();
+		bool load();
+		void on_event(SDL_Event& event);
+		void update(int dt);
+		void draw();
+		void unload();
 
-		void OnKeyDown(SDLKey key, SDLMod modifier, Uint16 unicode);
-		void OnMouseMove(int mx, int my, int relx, int rely, Uint8 state);
-		void OnLeftButtonDown(int mx, int my);
+		void key_dow(SDLKey key, SDLMod modifier, Uint16 unicode);
+		void mouse_move(int mx, int my, int relx, int rely, Uint8 state);
+		void left_button_down(int mx, int my);
 
 	private:
-		SDL_Surface* EyeCandy;
-		SDL_Surface* Title;
-		SDL_Surface* Cursor;
-		SDL_Surface* PopUp;
+		SDL_Surface* eye_candy;
+		SDL_Surface* title;
+		SDL_Surface* cursor;
+		SDL_Surface* popup;
 
-		Button buttons[5];
+		button buttons[5];
 		int selected;
-
 		int titlex;
 		int cx;
 		int cy;
-		float offsetx;
-		float offsety;
+		float xoffset;
+		float yoffset;
 		float angle;
 };
 
