@@ -134,7 +134,7 @@ void block::draw() {
 
 void block::fall() {
 	if(!dead) {
-		speed     = vector(0, FALL_SPEED);
+		speed      = vector2(0, FALL_SPEED);
 		is_falling = true;
 	}
 }

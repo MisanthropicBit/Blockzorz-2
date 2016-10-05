@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include <vector>
 #include <string>
-#include "vector.h"
+#include "vector2.h"
 
 class object;
 class particle;
@@ -31,7 +31,7 @@ class particle_effect {
 		int size() const;
 		effect_type type() const;
 		void set_gravity(float x, float y);
-		vector& gravity();
+		vector2 gravity();
 	
 	protected:
 		float x;
@@ -40,7 +40,7 @@ class particle_effect {
 		bool dead;
 		float force;
 		effect_type type;
-		vector gravity;
+		vector2 gravity;
 
 		SDL_Surface* sharedImage;
         std::vector<particle*> particles;

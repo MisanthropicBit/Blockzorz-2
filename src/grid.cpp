@@ -176,8 +176,8 @@ void grid::spawn_block_at_top() {
         game_over = true;
     } else {
         block* block = new Block(static_cast<block_type>(rand() % 5), 0, rand_col);
-        block->position = vector(get_col_x_coord(rand_col), -BLOCK_HEIGHT);
-        block->speed = vector(0, FALL_SPEED);
+        block->position = vector2(get_col_x_coord(rand_col), -BLOCK_HEIGHT);
+        block->speed = vector2(0, FALL_SPEED);
         spawn_list.push_back(block);
         block = nullptr;
     }
@@ -560,8 +560,8 @@ void grid::spawn_blocks(int dt) {
             }
 
             block* block    = new block(static_cast<block_type>(random), spawn_row, spawn_col);
-            block->position = vector(get_col_x_coord(spawn_col), -BLOCK_HEIGHT);
-            block->speed    = vector(0, SPAWN_DROP_SPEED);
+            block->position = vector2(get_col_x_coord(spawn_col), -BLOCK_HEIGHT);
+            block->speed    = vector2(0, SPAWN_DROP_SPEED);
             block->set_drop_y(get_row_y_coord(spawn_row));
             grid[spawn_row][spawn_col] = block;
             block = nullptr;

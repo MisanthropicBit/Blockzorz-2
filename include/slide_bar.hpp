@@ -2,8 +2,8 @@
 #define BLOCKZORZ2_SLIDE_BAR_HPP
 
 #include <string>
-#include "event.h"
-#include "vector.h"
+#include "event.hpp"
+#include "vector2.hpp"
 
 class slide_bar : public event {
 	public:
@@ -26,7 +26,7 @@ class slide_bar : public event {
 		void left_button_up(int mx, int my);
 
 	private:
-		vector position;
+		vector2 position;
 		int ix; // Image x-coordinate
 		int relx;
 		int value;

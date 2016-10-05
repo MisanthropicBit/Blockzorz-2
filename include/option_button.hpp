@@ -4,7 +4,6 @@
 #include "button.hpp"
 #include "event.hpp"
 #include "font.hpp"
-#include "vector.hpp"
 #include <vector>
 #include <string>
 

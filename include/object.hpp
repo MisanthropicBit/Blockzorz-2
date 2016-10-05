@@ -3,7 +3,7 @@
 
 #include <SDL.h>
 #include <string>
-#include "vector.hpp"
+#include "vector2.hpp"
 #include "color.hpp"
 
 class object {
@@ -24,9 +24,9 @@ class object {
 
 	public:
 		int w, h;
-		vector position;
-		vector speed;
-		vector acceleration;
+		vector2 position;
+		vector2 speed;
+		vector2 acceleration;
 
 	protected:
 		SDL_Surface* image;
